@@ -6,44 +6,7 @@ Take a picture and Publish it via HTTP.
 ![ƒXƒ‰ƒCƒh2](https://user-images.githubusercontent.com/6020549/99767675-c81d4a80-2b46-11eb-9712-ec0be23d1685.JPG)
 
 # Server Side
-I tested with Tornado & Flask.   
-You can choose the one you like.   
-
-## Using Tornado
-
-### Install Tornado
-```
-sudo apt install python-pip python-setuptools
-python -m pip install -U pip
-python -m pip install -U wheel
-python -m pip install tornado
-```
-
-### Start WEB Server using Tornado
-```
-git clonse https://github.com/nopnop2002/esp-idf-http-camera
-cd esp-idf-http-camera/tornado
-python upload.py
-```
-
----
-
-## Using Flask
-
-### Install Flask
-```
-sudo apt install python-pip python-setuptools
-python -m pip install -U pip
-python -m pip install -U wheel
-python -m pip install flask
-```
-
-### Start WEB Server using Flask
-```
-git clonse https://github.com/nopnop2002/esp-idf-http-camera
-cd esp-idf-http-camera/flask
-python upload.py
-```
+Download the server from [here](https://github.com/nopnop2002/multipart-upload-server).
 
 ---
 
