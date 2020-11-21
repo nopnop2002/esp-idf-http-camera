@@ -13,7 +13,13 @@ Download the server from [here](https://github.com/nopnop2002/multipart-upload-s
 # ESP32 Side
 
 ## Software requirements
-esp-idf ver4.1 or later.   
+esp-idf v4.0.2-120.   
+git clone -b release/v4.0 --recursive https://github.com/espressif/esp-idf.git
+
+esp-idf v4.1-520.   
+git clone -b release/v4.1 --recursive https://github.com/espressif/esp-idf.git
+
+__It does not work with esp-idf v4.3.___
 
 ## Installation
 Use a USB-TTL converter.   
