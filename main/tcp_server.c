@@ -28,37 +28,12 @@ extern QueueHandle_t xQueueCmd;
 
 static const char *TAG = "TCP";
 
-esp_err_t start_mdns_service()
-{
-	//initialize mDNS service
-	esp_err_t err = mdns_init();
-	if (err) {
-		ESP_LOGE(TAG, "mdns_init failed: %d", err);
-		return ESP_FAIL;
-	}
-
-	//set hostname
-	//mdns_hostname_set("my-esp32");
-	ESP_LOGI(TAG, "MDNS Hostname:%s", CONFIG_MDNS_HOSTNAME);
-	err = mdns_hostname_set(CONFIG_MDNS_HOSTNAME);
-	if (err) {
-		ESP_LOGE(TAG, "mdns_hostname_set failed: %d", err);
-		return ESP_FAIL;
-	}
-	//set default instance
-	//mdns_instance_name_set("Jhon's ESP32 Thing");
-	return ESP_OK;
-}
-
 void tcp_server(void *pvParameters)
 {
 	ESP_LOGI(TAG, "Start TCP PORT=%d", CONFIG_TCP_PORT);
 	CMD_t cmdBuf;
 	cmdBuf.taskHandle = xTaskGetCurrentTaskHandle();
 	cmdBuf.command = CMD_TAKE;
-
-	/* Start mDNS */
-	start_mdns_service();
 
 	char rx_buffer[128];
 	char tx_buffer[128];

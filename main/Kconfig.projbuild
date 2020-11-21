@@ -19,6 +19,33 @@ menu "Application Configuration"
 			help
 				Set the Maximum retry to avoid station reconnecting to the AP unlimited when the AP is really inexistent.
 
+		config STATIC_IP
+			bool "Enable Static IP Address"
+			default false
+			help
+				Enable Static IP Address.
+
+		config STATIC_IP_ADDRESS
+			depends on STATIC_IP
+			string "Static IP Address"
+			default "192.168.10.100"
+			help
+				Static IP Address for Station.
+
+		config STATIC_GW_ADDRESS
+			depends on STATIC_IP
+			string "Static GW Address"
+			default "192.168.10.1"
+			help
+				Static GW Address for Station.
+
+		config STATIC_NM_ADDRESS
+			depends on STATIC_IP
+			string "Static Netmask"
+			default "255.255.255.0"
+			help
+				Static Netmask for Station.
+
 	endmenu
 
 	menu "HTTP Server Setting"
@@ -294,6 +321,8 @@ menu "Application Configuration"
 				bool "Use TCP Socket"
 			config SHUTTER_UDP
 				bool "Use UDP Socket"
+			config SHUTTER_HTTP
+				bool "Use HTTP Request"
 
 		endchoice
 
@@ -326,13 +355,6 @@ menu "Application Configuration"
 		endchoice
 
 
-		config MDNS_HOSTNAME
-			string "mDNS hostname"
-			depends on SHUTTER_TCP
-			default "my-esp32"
-			help
-				mDNS hostname
-
 		config TCP_PORT
 			int "TCP Port"
 			depends on SHUTTER_TCP
@@ -349,21 +371,37 @@ menu "Application Configuration"
 			help
 				Local port UDP server will listen on.
 
-		config ENABLE_FLASH
-			bool "Enable Flash Light"
+		config LOCAL_WEB_PORT
+			int "LOCAL WEB PORT"
+			depends on SHUTTER_HTTP
+			default 8080
 			help
-				Enable Flash Light.
+				Local port for WEB server.
 
-		config GPIO_FLASH
-			int "Flash GPIO number"
-			depends on ENABLE_FLASH
-			range 4 34
-			default 4
+		config LOCAL_WEB_URL
+			string "LOCAL WEB URL"
+			depends on SHUTTER_HTTP
+			default "/take_picture"
 			help
-				GPIO number (IOxx) to Button Input.
-				Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to Button.
+				local URL for WEB server.
+				Must start with /.
 
 	endmenu
+
+	config ENABLE_FLASH
+		bool "Enable Flash Light"
+		help
+			Enable Flash Light.
+
+	config GPIO_FLASH
+		int "Flash GPIO number"
+		depends on ENABLE_FLASH
+		range 4 34
+		default 4
+		help
+			GPIO number (IOxx) to Button Input.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to Button.
+
 
 
 endmenu

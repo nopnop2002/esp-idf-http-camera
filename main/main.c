@@ -1,5 +1,5 @@
 /**
- * HTTP email client
+ * HTTP client
  *
  * Adapted from the `ssl_mail_client` example in mbedtls.
  *
@@ -61,7 +61,7 @@
 #endif
 
 /* FreeRTOS event group to signal when we are connected*/
-static EventGroupHandle_t wifi_event_group;
+static EventGroupHandle_t s_wifi_event_group;
 
 /* The event group allows multiple bits for each event, but we only care about one event */
 /* - Are we connected to the AP with an IP? */
@@ -94,6 +94,9 @@ void tcp_server(void *pvParameters);
 void udp_server(void *pvParameters);
 #endif
 
+#if CONFIG_SHUTTER_HTTP
+void web_server(void *pvParameters);
+#endif
 
 static void event_handler(void* arg, esp_event_base_t event_base,
 								int32_t event_id, void* event_data)
@@ -103,7 +106,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 	} else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
 		if (s_retry_num < ESP_MAXIMUM_RETRY) {
 			esp_wifi_connect();
-			xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+			xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
 			s_retry_num++;
 			ESP_LOGI(TAG, "retry to connect to the AP");
 		}
@@ -111,25 +114,116 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 	} else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
 		ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
 		ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
-		//ESP_LOGI(TAG, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
 		s_retry_num = 0;
-		xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+		xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
 	}
+}
+
+
+bool parseAddress(int * ip, char * text) {
+	ESP_LOGD(TAG, "parseAddress text=[%s]",text);
+	int len = strlen(text);
+	int octet = 0;
+	char buf[4];
+	int index = 0;
+	for(int i=0;i<len;i++) {
+		char c = text[i];
+		if (c == '.') {
+			ESP_LOGD(TAG, "buf=[%s] octet=%d", buf, octet);
+			ip[octet] = strtol(buf, NULL, 10);
+			octet++;
+			index = 0;
+		} else {
+			if (index == 3) return false;
+			if (c < '0' || c > '9') return false;
+			buf[index++] = c;
+			buf[index] = 0;
+		}
+	}
+
+	if (strlen(buf) > 0) {
+		ESP_LOGD(TAG, "buf=[%s] octet=%d", buf, octet);
+		ip[octet] = strtol(buf, NULL, 10);
+		octet++;
+	}
+	if (octet != 4) return false;
+	return true;
+
 }
 
 void wifi_init_sta()
 {
-	wifi_event_group = xEventGroupCreate();
+	s_wifi_event_group = xEventGroupCreate();
 
-#if 0
+	ESP_LOGI(TAG,"ESP-IDF Ver%d.%d", ESP_IDF_VERSION_MAJOR, ESP_IDF_VERSION_MINOR);
+
+#if ESP_IDF_VERSION_MAJOR >= 4 && ESP_IDF_VERSION_MINOR >= 1
+	ESP_LOGI(TAG,"ESP-IDF esp_netif");
+	ESP_ERROR_CHECK(esp_netif_init());
+	ESP_ERROR_CHECK(esp_event_loop_create_default());
+	esp_netif_t *netif = esp_netif_create_default_wifi_sta();
+#else
+	ESP_LOGI(TAG,"ESP-IDF tcpip_adapter");
 	tcpip_adapter_init();
-
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
 #endif
-	ESP_ERROR_CHECK(esp_netif_init());
-	
-	ESP_ERROR_CHECK(esp_event_loop_create_default());
-	esp_netif_create_default_wifi_sta();
+
+#if CONFIG_STATIC_IP
+
+	ESP_LOGI(TAG, "CONFIG_STATIC_IP_ADDRESS=[%s]",CONFIG_STATIC_IP_ADDRESS);
+	ESP_LOGI(TAG, "CONFIG_STATIC_GW_ADDRESS=[%s]",CONFIG_STATIC_GW_ADDRESS);
+	ESP_LOGI(TAG, "CONFIG_STATIC_NM_ADDRESS=[%s]",CONFIG_STATIC_NM_ADDRESS);
+
+	int ip[4];
+	bool ret = parseAddress(ip, CONFIG_STATIC_IP_ADDRESS);
+	ESP_LOGI(TAG, "parseAddress ret=%d ip=%d.%d.%d.%d", ret, ip[0], ip[1], ip[2], ip[3]);
+	if (!ret) {
+		ESP_LOGE(TAG, "CONFIG_STATIC_IP_ADDRESS [%s] not correct", CONFIG_STATIC_IP_ADDRESS);
+	while(1) { vTaskDelay(1); }
+	}
+
+	int gw[4];
+	ret = parseAddress(gw, CONFIG_STATIC_GW_ADDRESS);
+	ESP_LOGI(TAG, "parseAddress ret=%d gw=%d.%d.%d.%d", ret, gw[0], gw[1], gw[2], gw[3]);
+	if (!ret) {
+		ESP_LOGE(TAG, "CONFIG_STATIC_GW_ADDRESS [%s] not correct", CONFIG_STATIC_GW_ADDRESS);
+	while(1) { vTaskDelay(1); }
+	}
+
+	int nm[4];
+	ret = parseAddress(nm, CONFIG_STATIC_NM_ADDRESS);
+	ESP_LOGI(TAG, "parseAddress ret=%d nm=%d.%d.%d.%d", ret, nm[0], nm[1], nm[2], nm[3]);
+	if (!ret) {
+		ESP_LOGE(TAG, "CONFIG_STATIC_NM_ADDRESS [%s] not correct", CONFIG_STATIC_NM_ADDRESS);
+	while(1) { vTaskDelay(1); }
+	}
+
+#if ESP_IDF_VERSION_MAJOR >= 4 && ESP_IDF_VERSION_MINOR >= 1
+	/* Stop DHCP client */
+	ESP_ERROR_CHECK(esp_netif_dhcpc_stop(netif));
+	ESP_LOGI(TAG, "Stop DHCP Services");
+
+	/* Set STATIC IP Address */
+	esp_netif_ip_info_t ip_info;
+	IP4_ADDR(&ip_info.ip, ip[0], ip[1], ip[2], ip[3]);
+	IP4_ADDR(&ip_info.gw, gw[0], gw[1], gw[2], gw[3]);
+	IP4_ADDR(&ip_info.netmask, nm[0], nm[1], nm[2], nm[3]);
+	//tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_STA, &ip_info);
+	esp_netif_set_ip_info(netif, &ip_info);
+
+#else
+	/* Stop DHCP client */
+	tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA);
+
+	/* Set STATIC IP Address */
+	tcpip_adapter_ip_info_t ipInfo;
+	IP4_ADDR(&ipInfo.ip, ip[0], ip[1], ip[2], ip[3]);
+	IP4_ADDR(&ipInfo.gw, gw[0], gw[1], gw[2], gw[3]);
+	IP4_ADDR(&ipInfo.netmask, nm[0], nm[1], nm[2], nm[3]);
+	tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo);
+#endif
+
+#endif
 
 	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 	ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -147,11 +241,26 @@ void wifi_init_sta()
 	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
 	ESP_ERROR_CHECK(esp_wifi_start() );
 
-	xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
 	ESP_LOGI(TAG, "wifi_init_sta finished.");
-	ESP_LOGI(TAG, "connect to ap SSID:%s", ESP_WIFI_SSID);
-}
+	ESP_LOGI(TAG, "connect to ap SSID:%s password:%s",
+			 ESP_WIFI_SSID, ESP_WIFI_PASS);
 
+	// wait for IP_EVENT_STA_GOT_IP
+	while(1) {
+		/* Wait forever for WIFI_CONNECTED_BIT to be set within the event group.
+		   Clear the bits beforeexiting. */
+		EventBits_t uxBits = xEventGroupWaitBits(s_wifi_event_group,
+		   WIFI_CONNECTED_BIT, /* The bits within the event group to waitfor. */
+		   pdTRUE,		  /* WIFI_CONNECTED_BIT should be cleared before returning. */
+		   pdFALSE,		  /* Don't waitfor both bits, either bit will do. */
+		   portMAX_DELAY);/* Wait forever. */
+	   if ( ( uxBits & WIFI_CONNECTED_BIT ) == WIFI_CONNECTED_BIT ){
+		   ESP_LOGI(TAG, "WIFI_CONNECTED_BIT");
+		   break;
+	   }
+	}
+	ESP_LOGI(TAG, "Got IP Address.");
+}
 
 
 static void SPIFFS_Directory(char * path) {
@@ -165,9 +274,6 @@ static void SPIFFS_Directory(char * path) {
 	closedir(dir);
 }
 
-#if CONFIG_SHUTTER_UDP
-void udp_server(void *pvParameters);
-#endif
 
 #if CONFIG_REMOTE_IS_VARIABLE_NAME
 void time_sync_notification_cb(struct timeval *tv)
@@ -304,6 +410,11 @@ void app_main(void)
 #if CONFIG_SHUTTER_UDP
 #define SHUTTER "UDP Input"
 	xTaskCreate(udp_server, "UDP", 1024*4, NULL, 2, NULL);
+#endif
+
+#if CONFIG_SHUTTER_HTTP
+#define SHUTTER "HTTP Request"
+    xTaskCreate(web_server, "WEB", 1024*4, NULL, 2, NULL);
 #endif
 
 	/* Detect camera */
