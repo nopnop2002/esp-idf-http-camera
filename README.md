@@ -43,11 +43,14 @@ Set the following items using menuconfig.
 
 ![config-main](https://user-images.githubusercontent.com/6020549/66692052-c17e9b80-ecd5-11e9-8316-075350ceb2e9.jpg)
 
-![config-app](https://user-images.githubusercontent.com/6020549/99767823-074b9b80-2b47-11eb-9e42-284b108bde41.jpg)
+![config-app](https://user-images.githubusercontent.com/6020549/99889856-738be380-2c9c-11eb-9ff5-871d424af66a.jpg)
 
 ### Wifi Setting
 
-![config-wifi](https://user-images.githubusercontent.com/6020549/66692062-e4a94b00-ecd5-11e9-9ea7-afb74cc347af.jpg)
+![config-wifi-1](https://user-images.githubusercontent.com/6020549/99889864-7f77a580-2c9c-11eb-98d2-4b229972d380.jpg)
+
+You can use static IP.   
+![config-wifi-2](https://user-images.githubusercontent.com/6020549/99889868-83a3c300-2c9c-11eb-9f3e-1b5650c34467.jpg)
 
 ### HTTP Server Setting
 
@@ -81,7 +84,7 @@ For operation check
 
 ![config-shutter-1](https://user-images.githubusercontent.com/6020549/98636952-1e320700-236b-11eb-8c5b-0a2b56267310.jpg)
 
-- Shutter is a GPIO toggle
+- Shutter is a GPIO toggle   
 
   - Initial Sate is PULLDOWN   
 The shutter is prepared when it is turned from OFF to ON, and a picture is taken when it is turned from ON to OFF.   
@@ -116,7 +119,11 @@ You can use udp_send.py.
 python ./udp_send.py
 ```
 
-![config-shutter-4](https://user-images.githubusercontent.com/6020549/98636950-1d997080-236b-11eb-98ca-c14d16954f42.jpg)
+![config-shutter-4](https://user-images.githubusercontent.com/6020549/99889941-658a9280-2c9d-11eb-8bc7-06f2b67af3cb.jpg)
+
+- Shutter is HTTP Request   
+
+![config-shutter-5](https://user-images.githubusercontent.com/6020549/99889881-b6e65200-2c9c-11eb-96c2-6fdde929dbe0.jpg)
 
 ### Flash Light
 
