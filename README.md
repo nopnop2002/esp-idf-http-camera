@@ -1,7 +1,7 @@
 # esp-idf-http-camera
 Take a picture and Publish it via HTTP.   
 
-![スライド1](https://user-images.githubusercontent.com/6020549/99767668-c5225a00-2b46-11eb-826e-a5dd106544fe.JPG)
+![スライド1](https://user-images.githubusercontent.com/6020549/99890147-9c61a800-2c9f-11eb-8c2a-1f1ad9e1dd41.JPG)
 
 ![スライド2](https://user-images.githubusercontent.com/6020549/99767675-c81d4a80-2b46-11eb-9712-ec0be23d1685.JPG)
 
