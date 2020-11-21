@@ -135,6 +135,6 @@ python ./udp_send.py
 
 ESP32-CAM by AI-Thinker have flash light on GPIO4.
 
-![config-flash](https://user-images.githubusercontent.com/6020549/98637034-46216a80-236b-11eb-8504-e83f718f5e85.jpg)
+![config-flash](https://user-images.githubusercontent.com/6020549/99890190-0b3f0100-2ca0-11eb-94c6-ba7e2cfe1727.jpg)
 
 
