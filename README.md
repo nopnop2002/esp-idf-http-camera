@@ -19,6 +19,9 @@ git clone -b release/v4.0 --recursive https://github.com/espressif/esp-idf.git
 esp-idf v4.1-520.   
 git clone -b release/v4.1 --recursive https://github.com/espressif/esp-idf.git
 
+esp-idf v4.2-beta1-227.   
+git clone -b release/v4.2 --recursive https://github.com/espressif/esp-idf.git
+
 __It does not work with esp-idf v4.3.__
 
 ## Installation
