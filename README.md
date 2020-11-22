@@ -129,7 +129,10 @@ python ./udp_send.py
 
 - Shutter is HTTP Request   
 You can use this command.   
+
+```
 curl "http://192.168.10.110:8080/take_picture"
+```
 
 ![config-shutter-5](https://user-images.githubusercontent.com/6020549/99889881-b6e65200-2c9c-11eb-96c2-6fdde929dbe0.jpg)
 
