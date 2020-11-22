@@ -37,6 +37,8 @@
 #include "esp_spiffs.h"
 #include "esp_sntp.h"
 
+#include "lwip/dns.h"
+
 #include "driver/gpio.h"
 
 #include "camera.h"
@@ -222,6 +224,22 @@ void wifi_init_sta()
 	IP4_ADDR(&ipInfo.netmask, nm[0], nm[1], nm[2], nm[3]);
 	tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo);
 #endif
+
+	/*
+	I referred from here.
+	https://www.esp32.com/viewtopic.php?t=5380
+
+	if we should not be using DHCP (for example we are using static IP addresses), 
+	then we need to instruct the ESP32 of the locations of the DNS servers manually.
+	Google publicly makes available two name servers with the addresses of 8.8.8.8 and 8.8.4.4.
+	*/
+
+    ip_addr_t d;
+    d.type = IPADDR_TYPE_V4;
+    d.u_addr.ip4.addr = 0x08080808; //8.8.8.8 dns
+    dns_setserver(0, &d);
+    d.u_addr.ip4.addr = 0x08080404; //8.8.4.4 dns
+    dns_setserver(1, &d);
 
 #endif
 
