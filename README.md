@@ -10,8 +10,7 @@ Download the server from [here](https://github.com/nopnop2002/multipart-upload-s
 
 ![http-server](https://user-images.githubusercontent.com/6020549/119244044-79a94100-bba7-11eb-8b03-e25e78fc310a.jpg)
 ![http-server-2](https://user-images.githubusercontent.com/6020549/119245826-2808b280-bbb7-11eb-81f1-87bf00f88e41.jpg)
-![http-server-3](https://user-images.githubusercontent.com/6020549/119245982-91d58c00-bbb8-11eb-8905-835a4ebd1cf9.jpg)
-
+![http-server-3](https://user-images.githubusercontent.com/6020549/119248815-a886dd80-bbce-11eb-8974-68f26d08ed3b.jpg)
 
 ---
 
