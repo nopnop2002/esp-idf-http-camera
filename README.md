@@ -8,7 +8,7 @@ This project use [ESP32 Camera Driver](https://github.com/espressif/esp32-camera
 # Server Side
 Download the server from [here](https://github.com/nopnop2002/multipart-upload-server).
 
-![multipart-upload-server-1](https://user-images.githubusercontent.com/6020549/119225534-4af78000-bb3f-11eb-83fc-d3c93b31e4eb.jpg)
+![http-server](https://user-images.githubusercontent.com/6020549/119244044-79a94100-bba7-11eb-8b03-e25e78fc310a.jpg)
 ![multipart-upload-server-2](https://user-images.githubusercontent.com/6020549/119225542-5054ca80-bb3f-11eb-95a3-f558e606f68c.jpg)
 ![multipart-upload-server-3](https://user-images.githubusercontent.com/6020549/119225537-4b901680-bb3f-11eb-9f0c-e009b5f6c56d.jpg)
 
@@ -69,7 +69,7 @@ You can use static IP.
 
 ### Attached File Name Setting
 
-You can choose the file name on the FTP server side from the following.   
+You can choose the file name on the HTTP server side from the following.   
 - Always the same file name   
 - File name based on date and time   
 When you choose date and time file name, you will need an NTP server.   
@@ -116,7 +116,7 @@ I confirmed that the following GPIO can be used.
 |GPIO15|OK|OK|
 |GPIO16|NG|NG|
 
-![config-shutter-2](https://user-images.githubusercontent.com/6020549/99890069-dbdbc480-2c9e-11eb-9ab5-2489efd0c579.jp
+![config-shutter-2](https://user-images.githubusercontent.com/6020549/99897437-d2714d00-2cdc-11eb-8e59-c8bf4ef25d62.jpg)
 
 - Shutter is TCP Socket   
 You can use tcp_send.py.   
@@ -136,7 +136,6 @@ python ./udp_send.py
 
 - Shutter is HTTP Request   
 You can use this command.   
-
 `curl "http://esp32-camera.local:8080/take_picture"`
 
 ![config-shutter-5](https://user-images.githubusercontent.com/6020549/99889881-b6e65200-2c9c-11eb-96c2-6fdde929dbe0.jpg)
