@@ -9,8 +9,7 @@ This project use [ESP32 Camera Driver](https://github.com/espressif/esp32-camera
 Download the server from [here](https://github.com/nopnop2002/multipart-upload-server).
 
 ![http-server](https://user-images.githubusercontent.com/6020549/119244044-79a94100-bba7-11eb-8b03-e25e78fc310a.jpg)
-![multipart-upload-server-2](https://user-images.githubusercontent.com/6020549/119225542-5054ca80-bb3f-11eb-95a3-f558e606f68c.jpg)
-![multipart-upload-server-3](https://user-images.githubusercontent.com/6020549/119225537-4b901680-bb3f-11eb-9f0c-e009b5f6c56d.jpg)
+![http-server-2](https://user-images.githubusercontent.com/6020549/119245826-2808b280-bbb7-11eb-81f1-87bf00f88e41.jpg)
 
 
 ---
