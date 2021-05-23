@@ -120,17 +120,13 @@ I confirmed that the following GPIO can be used.
 
 - Shutter is TCP Socket   
 You can use tcp_send.py.   
-```
-python ./tcp_send.py
-```
+`python ./tcp_send.py`
 
 ![config-shutter-3](https://user-images.githubusercontent.com/6020549/99890070-dc745b00-2c9e-11eb-9ae8-45ac11db5db5.jpg)
 
 - Shutter is UDP Socket   
 You can use udp_send.py.   
-```
-python ./udp_send.py
-```
+`python ./udp_send.py`
 
 ![config-shutter-4](https://user-images.githubusercontent.com/6020549/99889941-658a9280-2c9d-11eb-8bc7-06f2b67af3cb.jpg)
 
