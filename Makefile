@@ -3,6 +3,6 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := esp-idf-http-camera
+PROJECT_NAME := http-camera
 
 include $(IDF_PATH)/make/project.mk

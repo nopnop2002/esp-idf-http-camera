@@ -1,24 +1,15 @@
-/**
- * HTTP client
- *
- * Adapted from the `ssl_mail_client` example in mbedtls.
- *
- * Original Copyright (C) 2006-2016, ARM Limited, All Rights Reserved, Apache 2.0 License.
- * Additions Copyright (C) Copyright 2015-2020 Espressif Systems (Shanghai) PTE LTD, Apache 2.0 License.
- *
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *	   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*
+   Take a picture and Publish it via HTTP Post.
+
+   This code is in the Public Domain (or CC0 licensed, at your option.)
+
+   Unless required by applicable law or agreed to in writing, this
+   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+   CONDITIONS OF ANY KIND, either express or implied.
+
+   I ported from here:
+   https://github.com/espressif/esp32-camera/blob/master/examples/take_picture.c
+*/
 
 #include <string.h>
 #include <stdlib.h>
@@ -36,37 +27,20 @@
 #include "esp_vfs.h"
 #include "esp_spiffs.h"
 #include "esp_sntp.h"
-
+#include "mdns.h"
 #include "lwip/dns.h"
-
 #include "driver/gpio.h"
 
-#include "camera.h"
+#include "esp_camera.h"
+
 #include "cmd.h"
 
-
-/* The examples use WiFi configuration that you can set via project configuration menu
-
-   If you'd rather not, just change the below entries to strings with
-   the config you want - ie #define ESP_WIFI_SSID "mywifissid"
-*/
-#define ESP_WIFI_SSID				CONFIG_ESP_WIFI_SSID
-#define ESP_WIFI_PASS				CONFIG_ESP_WIFI_PASSWORD
-#define ESP_MAXIMUM_RETRY			CONFIG_ESP_MAXIMUM_RETRY
-
-#if CONFIG_REMOTE_IS_VARIABLE_NAME
-#define ESP_NTP_SERVER				CONFIG_NTP_SERVER
-#endif
-
-#if CONFIG_REMOTE_IS_FIXED_NAME
-#define ESP_FIXED_REMOTE_FILE		CONFIG_FIXED_REMOTE_FILE
-#endif
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
 
-/* The event group allows multiple bits for each event, but we only care about one event */
-/* - Are we connected to the AP with an IP? */
+/* The event group allows multiple bits for each event, but we only care about one event
+ * - are we connected to the AP with an IP? */
 const int WIFI_CONNECTED_BIT = BIT0;
 
 static const char *TAG = "MAIN";
@@ -78,27 +52,125 @@ QueueHandle_t xQueueSmtp;
 QueueHandle_t xQueueRequest;
 QueueHandle_t xQueueResponse;
 
-void http_post_task(void *pvParameters);
+#define BOARD_ESP32CAM_AITHINKER
 
-#if CONFIG_SHUTTER_ENTER
-void keyin(void *pvParameters);
+// WROVER-KIT PIN Map
+#ifdef BOARD_WROVER_KIT
+
+#define CAM_PIN_PWDN -1  //power down is not used
+#define CAM_PIN_RESET -1 //software reset will be performed
+#define CAM_PIN_XCLK 21
+#define CAM_PIN_SIOD 26
+#define CAM_PIN_SIOC 27
+
+#define CAM_PIN_D7 35
+#define CAM_PIN_D6 34
+#define CAM_PIN_D5 39
+#define CAM_PIN_D4 36
+#define CAM_PIN_D3 19
+#define CAM_PIN_D2 18
+#define CAM_PIN_D1 5
+#define CAM_PIN_D0 4
+#define CAM_PIN_VSYNC 25
+#define CAM_PIN_HREF 23
+#define CAM_PIN_PCLK 22
+
 #endif
 
-#if CONFIG_SHUTTER_GPIO
-void gpio(void *pvParameters);
+// ESP32Cam (AiThinker) PIN Map
+#ifdef BOARD_ESP32CAM_AITHINKER
+
+#define CAM_PIN_PWDN 32
+#define CAM_PIN_RESET -1 //software reset will be performed
+#define CAM_PIN_XCLK 0
+#define CAM_PIN_SIOD 26
+#define CAM_PIN_SIOC 27
+
+#define CAM_PIN_D7 35
+#define CAM_PIN_D6 34
+#define CAM_PIN_D5 39
+#define CAM_PIN_D4 36
+#define CAM_PIN_D3 21
+#define CAM_PIN_D2 19
+#define CAM_PIN_D1 18
+#define CAM_PIN_D0 5
+#define CAM_PIN_VSYNC 25
+#define CAM_PIN_HREF 23
+#define CAM_PIN_PCLK 22
+
 #endif
 
-#if CONFIG_SHUTTER_TCP
-void tcp_server(void *pvParameters);
-#endif
+//static camera_config_t camera_config = {
+camera_config_t camera_config = {
+	.pin_pwdn = CAM_PIN_PWDN,
+	.pin_reset = CAM_PIN_RESET,
+	.pin_xclk = CAM_PIN_XCLK,
+	.pin_sscb_sda = CAM_PIN_SIOD,
+	.pin_sscb_scl = CAM_PIN_SIOC,
 
-#if CONFIG_SHUTTER_UDP
-void udp_server(void *pvParameters);
-#endif
+	.pin_d7 = CAM_PIN_D7,
+	.pin_d6 = CAM_PIN_D6,
+	.pin_d5 = CAM_PIN_D5,
+	.pin_d4 = CAM_PIN_D4,
+	.pin_d3 = CAM_PIN_D3,
+	.pin_d2 = CAM_PIN_D2,
+	.pin_d1 = CAM_PIN_D1,
+	.pin_d0 = CAM_PIN_D0,
+	.pin_vsync = CAM_PIN_VSYNC,
+	.pin_href = CAM_PIN_HREF,
+	.pin_pclk = CAM_PIN_PCLK,
 
-#if CONFIG_SHUTTER_HTTP
-void web_server(void *pvParameters);
-#endif
+	//XCLK 20MHz or 10MHz for OV2640 double FPS (Experimental)
+	.xclk_freq_hz = 20000000,
+	.ledc_timer = LEDC_TIMER_0,
+	.ledc_channel = LEDC_CHANNEL_0,
+
+	.pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
+	.frame_size = FRAMESIZE_VGA,	//QQVGA-UXGA Do not use sizes above QVGA when not JPEG
+
+	.jpeg_quality = 12, //0-63 lower number means higher quality
+	.fb_count = 1		//if more than one, i2s runs in continuous mode. Use only with JPEG
+};
+
+static esp_err_t init_camera(int framesize)
+{
+	//initialize the camera
+	camera_config.frame_size = framesize;
+	esp_err_t err = esp_camera_init(&camera_config);
+	if (err != ESP_OK)
+	{
+		ESP_LOGE(TAG, "Camera Init Failed");
+		return err;
+	}
+
+	return ESP_OK;
+}
+
+static esp_err_t camera_capture(char * FileName, size_t *pictureSize)
+{
+	//acquire a frame
+	camera_fb_t * fb = esp_camera_fb_get();
+	if (!fb) {
+		ESP_LOGE(TAG, "Camera Capture Failed");
+		return ESP_FAIL;
+	}
+
+	//replace this with your own function
+	//process_image(fb->width, fb->height, fb->format, fb->buf, fb->len);
+	FILE* f = fopen(FileName, "wb");
+	if (f == NULL) {
+		ESP_LOGE(TAG, "Failed to open file for writing");
+		return ESP_FAIL;
+	}
+	fwrite(fb->buf, fb->len, 1, f);
+	ESP_LOGI(TAG, "fb->len=%d", fb->len);
+	*pictureSize = (size_t)fb->len;
+	fclose(f);
+
+	//return the frame buffer back to the driver for reuse
+	esp_camera_fb_return(fb);
+	return ESP_OK;
+}
 
 static void event_handler(void* arg, esp_event_base_t event_base,
 								int32_t event_id, void* event_data)
@@ -106,7 +178,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 	if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
 		esp_wifi_connect();
 	} else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-		if (s_retry_num < ESP_MAXIMUM_RETRY) {
+		if (s_retry_num < CONFIG_ESP_MAXIMUM_RETRY) {
 			esp_wifi_connect();
 			xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
 			s_retry_num++;
@@ -234,12 +306,12 @@ void wifi_init_sta()
 	Google publicly makes available two name servers with the addresses of 8.8.8.8 and 8.8.4.4.
 	*/
 
-    ip_addr_t d;
-    d.type = IPADDR_TYPE_V4;
-    d.u_addr.ip4.addr = 0x08080808; //8.8.8.8 dns
-    dns_setserver(0, &d);
-    d.u_addr.ip4.addr = 0x08080404; //8.8.4.4 dns
-    dns_setserver(1, &d);
+	ip_addr_t d;
+	d.type = IPADDR_TYPE_V4;
+	d.u_addr.ip4.addr = 0x08080808; //8.8.8.8 dns
+	dns_setserver(0, &d);
+	d.u_addr.ip4.addr = 0x08080404; //8.8.4.4 dns
+	dns_setserver(1, &d);
 
 #endif
 
@@ -251,8 +323,8 @@ void wifi_init_sta()
 
 	wifi_config_t wifi_config = {
 		.sta = {
-			.ssid = ESP_WIFI_SSID,
-			.password = ESP_WIFI_PASS
+			.ssid = CONFIG_ESP_WIFI_SSID,
+			.password = CONFIG_ESP_WIFI_PASSWORD
 		},
 	};
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
@@ -261,7 +333,7 @@ void wifi_init_sta()
 
 	ESP_LOGI(TAG, "wifi_init_sta finished.");
 	ESP_LOGI(TAG, "connect to ap SSID:%s password:%s",
-			 ESP_WIFI_SSID, ESP_WIFI_PASS);
+			 CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
 
 	// wait for IP_EVENT_STA_GOT_IP
 	while(1) {
@@ -280,16 +352,54 @@ void wifi_init_sta()
 	ESP_LOGI(TAG, "Got IP Address.");
 }
 
+void initialise_mdns(void)
+{
+	//initialize mDNS
+	ESP_ERROR_CHECK( mdns_init() );
+	//set mDNS hostname (required if you want to advertise services)
+	ESP_ERROR_CHECK( mdns_hostname_set(CONFIG_MDNS_HOSTNAME) );
+	ESP_LOGI(TAG, "mdns hostname set to: [%s]", CONFIG_MDNS_HOSTNAME);
 
-static void SPIFFS_Directory(char * path) {
-	DIR* dir = opendir(path);
-	assert(dir != NULL);
-	while (true) {
-		struct dirent*pe = readdir(dir);
-		if (!pe) break;
-		ESP_LOGI(__FUNCTION__,"d_name=%s d_ino=%d d_type=%x", pe->d_name,pe->d_ino, pe->d_type);
+#if 0
+	//set default mDNS instance name
+	ESP_ERROR_CHECK( mdns_instance_name_set("ESP32 with mDNS") );
+#endif
+}
+
+esp_err_t mountSPIFFS(char * partition_label, char * base_path) {
+	ESP_LOGI(TAG, "Initializing SPIFFS file system");
+
+	esp_vfs_spiffs_conf_t conf = {
+		.base_path = base_path,
+		.partition_label = partition_label,
+		.max_files = 8,
+		.format_if_mount_failed = true
+	};
+
+	// Use settings defined above to initialize and mount SPIFFS filesystem.
+	// Note: esp_vfs_spiffs_register is an all-in-one convenience function.
+	esp_err_t ret = esp_vfs_spiffs_register(&conf);
+
+	if (ret != ESP_OK) {
+		if (ret == ESP_FAIL) {
+			ESP_LOGE(TAG, "Failed to mount or format filesystem");
+		} else if (ret == ESP_ERR_NOT_FOUND) {
+			ESP_LOGE(TAG, "Failed to find SPIFFS partition");
+		} else {
+			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
+		}
+		return ret;
 	}
-	closedir(dir);
+
+	size_t total = 0, used = 0;
+	ret = esp_spiffs_info(partition_label, &total, &used);
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
+	} else {
+		ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+	}
+	ESP_LOGI(TAG, "Mount SPIFFS filesystem");
+	return ret;
 }
 
 
@@ -304,8 +414,8 @@ static void initialize_sntp(void)
 	ESP_LOGI(TAG, "Initializing SNTP");
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
 	//sntp_setservername(0, "pool.ntp.org");
-	ESP_LOGI(TAG, "Your NTP Server is %s", ESP_NTP_SERVER);
-	sntp_setservername(0, ESP_NTP_SERVER);
+	ESP_LOGI(TAG, "Your NTP Server is %s", CONFIG_NTP_SERVER);
+	sntp_setservername(0, CONFIG_NTP_SERVER);
 	sntp_set_time_sync_notification_cb(time_sync_notification_cb);
 	sntp_init();
 }
@@ -326,11 +436,32 @@ static esp_err_t obtain_time(void)
 }
 #endif
 
+void http_post_task(void *pvParameters);
+
+#if CONFIG_SHUTTER_ENTER
+void keyin(void *pvParameters);
+#endif
+
+#if CONFIG_SHUTTER_GPIO
+void gpio(void *pvParameters);
+#endif
+
+#if CONFIG_SHUTTER_TCP
+void tcp_server(void *pvParameters);
+#endif
+
+#if CONFIG_SHUTTER_UDP
+void udp_server(void *pvParameters);
+#endif
+
+#if CONFIG_SHUTTER_HTTP
+void web_server(void *pvParameters);
+#endif
+
 void app_main(void)
 {
-	esp_err_t ret;
 	// Initialize NVS
-	ret = nvs_flash_init();
+	esp_err_t ret = nvs_flash_init();
 	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
 		ESP_ERROR_CHECK(nvs_flash_erase());
 		ret = nvs_flash_init();
@@ -339,6 +470,7 @@ void app_main(void)
 
 	ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
 	wifi_init_sta();
+	initialise_mdns();
 
 #if CONFIG_REMOTE_IS_VARIABLE_NAME
 	// obtain time over NTP
@@ -362,34 +494,10 @@ void app_main(void)
 
 	// Initialize SPIFFS
 	ESP_LOGI(TAG, "Initializing SPIFFS");
-	esp_vfs_spiffs_conf_t conf = {
-		.base_path = "/spiffs",
-		.partition_label = NULL,
-		.max_files = 8,
-		.format_if_mount_failed =true
-	};
-	// Use settings defined above toinitialize and mount SPIFFS filesystem.
-	// Note: esp_vfs_spiffs_register is anall-in-one convenience function.
-	ret =esp_vfs_spiffs_register(&conf);
-	if (ret != ESP_OK) {
-		if (ret == ESP_FAIL) {
-			ESP_LOGE(TAG, "Failed to mount or format filesystem");
-		} else if (ret == ESP_ERR_NOT_FOUND) {
-			ESP_LOGE(TAG, "Failed to find SPIFFS partition");
-		} else {
-			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)",esp_err_to_name(ret));
-		}
-		return;
-	}
-	size_t total = 0, used = 0;
-	ret = esp_spiffs_info(NULL, &total,&used);
-	if (ret != ESP_OK) {
-		ESP_LOGE(TAG,"Failed to get SPIFFS partition information (%s)",esp_err_to_name(ret));
-	} else {
-		ESP_LOGI(TAG,"Partition size: total: %d, used: %d", total, used);
-	}
-
-	SPIFFS_Directory("/spiffs/");
+	char *partition_label = "storage";
+	char *base_path = "/spiffs";
+	ret = mountSPIFFS(partition_label, base_path);
+	if (ret != ESP_OK) return;
 
 #if CONFIG_ENABLE_FLASH
 	// Enable Flash Light
@@ -432,22 +540,48 @@ void app_main(void)
 
 #if CONFIG_SHUTTER_HTTP
 #define SHUTTER "HTTP Request"
-    xTaskCreate(web_server, "WEB", 1024*4, NULL, 2, NULL);
+	xTaskCreate(web_server, "WEB", 1024*4, NULL, 2, NULL);
 #endif
 
-	/* Detect camera */
-	ret = camera_detect();
-	if (ret != ESP_OK) return;
+#if CONFIG_FRAMESIZE_VGA
+	int framesize = FRAMESIZE_VGA;
+	#define FRAMESIZE_STRING "640x480"
+#elif CONFIG_FRAMESIZE_SVGA
+	int framesize = FRAMESIZE_SVGA;
+	#define FRAMESIZE_STRING "800x600"
+#elif CONFIG_FRAMESIZE_XGA
+	int framesize = FRAMESIZE_XGA;
+	#define FRAMESIZE_STRING "1024x768"
+#elif CONFIG_FRAMESIZE_HD
+	int framesize = FRAMESIZE_HD;
+	#define FRAMESIZE_STRING "1280x720"
+#elif CONFIG_FRAMESIZE_SXGA
+	int framesize = FRAMESIZE_SXGA;
+	#define FRAMESIZE_STRING "1280x1024"
+#elif CONFIG_FRAMESIZE_UXGA
+	int framesize = FRAMESIZE_UXGA;
+	#define FRAMESIZE_STRING "1600x1200"
+#endif
 
-	CMD_t cmdBuf;
+	init_camera(framesize);
+
 	REQUEST_t requestBuf;
+	RESPONSE_t responseBuf;
 	requestBuf.command = CMD_SEND;
 	requestBuf.taskHandle = xTaskGetCurrentTaskHandle();
-	RESPONSE_t responseBuf;
-	
-	//char localFileName[64];
-	//char remoteFileName[64];
-	sprintf(requestBuf.localFileName, "/spiffs/picture.jpg");
+    sprintf(requestBuf.localFileName, "%s/picture.jpg", base_path);
+    ESP_LOGI(TAG, "localFileName=%s",requestBuf.localFileName);
+#if CONFIG_REMOTE_IS_FIXED_NAME
+    //sprintf(requestBuf.remoteFileName, "picture.jpg");
+#if CONFIG_REMOTE_FRAMESIZE
+    sprintf(requestBuf.remoteFileName, "%s_%s", CONFIG_FIXED_REMOTE_FILE, FRAMESIZE_STRING);
+#else
+    sprintf(requestBuf.remoteFileName, "%s", CONFIG_FIXED_REMOTE_FILE);
+#endif
+    ESP_LOGI(TAG, "remoteFileName=%s",requestBuf.remoteFileName);
+#endif
+
+	CMD_t cmdBuf;
 
 	while(1) {
 		ESP_LOGI(TAG,"Waitting %s ....", SHUTTER);
@@ -462,21 +596,23 @@ void app_main(void)
 			unlink(requestBuf.localFileName);
 		}
 
-#if CONFIG_REMOTE_IS_FIXED_NAME
-		sprintf(requestBuf.remoteFileName, "%s", ESP_FIXED_REMOTE_FILE);
-#endif
-
 #if CONFIG_REMOTE_IS_VARIABLE_NAME
-		time(&now);
-		now = now + (CONFIG_LOCAL_TIMEZONE*60*60);
-		localtime_r(&now, &timeinfo);
-		strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-		ESP_LOGI(TAG, "The current date/time is: %s", strftime_buf);
-		sprintf(requestBuf.remoteFileName, "%04d%02d%02d-%02d%02d%02d.jpg",
-		(timeinfo.tm_year+1900),(timeinfo.tm_mon+1),timeinfo.tm_mday,
-		timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+        time(&now);
+        now = now + (CONFIG_LOCAL_TIMEZONE*60*60);
+        localtime_r(&now, &timeinfo);
+        strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+        ESP_LOGI(TAG, "The current date/time is: %s", strftime_buf);
+#if CONFIG_REMOTE_FRAMESIZE
+        sprintf(requestBuf.remoteFileName, "%04d%02d%02d-%02d%02d%02d_%s.jpg",
+        (timeinfo.tm_year+1900),(timeinfo.tm_mon+1),timeinfo.tm_mday,
+        timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec, FRAMESIZE_STRING);
+#else
+        sprintf(requestBuf.remoteFileName, "%04d%02d%02d-%02d%02d%02d.jpg",
+        (timeinfo.tm_year+1900),(timeinfo.tm_mon+1),timeinfo.tm_mday,
+        timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
 #endif
 		ESP_LOGI(TAG, "remoteFileName: %s", requestBuf.remoteFileName);
+#endif
 
 #if CONFIG_ENABLE_FLASH
 		// Flash Light ON

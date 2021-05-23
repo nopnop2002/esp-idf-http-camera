@@ -112,7 +112,7 @@ void http_post_task(void *pvParameters)
 		char BODY[512];
 		sprintf(header, "--%s\r\n", BOUNDARY);
 		strcpy(BODY, header);
-		sprintf(header, "Content-Disposition: form-data; name=\"uploadFile\"; filename=\"%s\"\r\n", requestBuf.remoteFileName);
+		sprintf(header, "Content-Disposition: form-data; name=\"upfile\"; filename=\"%s\"\r\n", requestBuf.remoteFileName);
 		strcat(BODY, header);
 		sprintf(header, "Content-Type: application/octet-stream\r\n\r\n");
 		strcat(BODY, header);
