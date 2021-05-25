@@ -2,8 +2,8 @@
 Take a picture and Publish it via HTTP.   
 This project use [ESP32 Camera Driver](https://github.com/espressif/esp32-camera).
 
-![slide0001](https://user-images.githubusercontent.com/6020549/119245616-a95f4580-bbb5-11eb-99b6-63ae13c6cb7d.jpg)
-![slide0002](https://user-images.githubusercontent.com/6020549/119245627-b9772500-bbb5-11eb-8da7-7a5391e3965c.jpg)
+![slide-0001](https://user-images.githubusercontent.com/6020549/119491922-7a092e00-bd99-11eb-8260-a52e9f5bddc2.jpg)
+![slide-0002](https://user-images.githubusercontent.com/6020549/119491927-7bd2f180-bd99-11eb-88aa-a4c4c9ab6c84.jpg)
 
 # Server Side
 Download the server from [here](https://github.com/nopnop2002/multipart-upload-server).
