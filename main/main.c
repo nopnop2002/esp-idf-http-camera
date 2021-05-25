@@ -569,16 +569,16 @@ void app_main(void)
 	RESPONSE_t responseBuf;
 	requestBuf.command = CMD_SEND;
 	requestBuf.taskHandle = xTaskGetCurrentTaskHandle();
-    sprintf(requestBuf.localFileName, "%s/picture.jpg", base_path);
-    ESP_LOGI(TAG, "localFileName=%s",requestBuf.localFileName);
+	sprintf(requestBuf.localFileName, "%s/picture.jpg", base_path);
+	ESP_LOGI(TAG, "localFileName=%s",requestBuf.localFileName);
 #if CONFIG_REMOTE_IS_FIXED_NAME
-    //sprintf(requestBuf.remoteFileName, "picture.jpg");
+	//sprintf(requestBuf.remoteFileName, "picture.jpg");
 #if CONFIG_REMOTE_FRAMESIZE
-    sprintf(requestBuf.remoteFileName, "%s_%s", CONFIG_FIXED_REMOTE_FILE, FRAMESIZE_STRING);
+	sprintf(requestBuf.remoteFileName, "%s_%s", CONFIG_FIXED_REMOTE_FILE, FRAMESIZE_STRING);
 #else
-    sprintf(requestBuf.remoteFileName, "%s", CONFIG_FIXED_REMOTE_FILE);
+	sprintf(requestBuf.remoteFileName, "%s", CONFIG_FIXED_REMOTE_FILE);
 #endif
-    ESP_LOGI(TAG, "remoteFileName=%s",requestBuf.remoteFileName);
+	ESP_LOGI(TAG, "remoteFileName=%s",requestBuf.remoteFileName);
 #endif
 
 	CMD_t cmdBuf;
@@ -597,19 +597,19 @@ void app_main(void)
 		}
 
 #if CONFIG_REMOTE_IS_VARIABLE_NAME
-        time(&now);
-        now = now + (CONFIG_LOCAL_TIMEZONE*60*60);
-        localtime_r(&now, &timeinfo);
-        strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-        ESP_LOGI(TAG, "The current date/time is: %s", strftime_buf);
+		time(&now);
+		now = now + (CONFIG_LOCAL_TIMEZONE*60*60);
+		localtime_r(&now, &timeinfo);
+		strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+		ESP_LOGI(TAG, "The current date/time is: %s", strftime_buf);
 #if CONFIG_REMOTE_FRAMESIZE
-        sprintf(requestBuf.remoteFileName, "%04d%02d%02d-%02d%02d%02d_%s.jpg",
-        (timeinfo.tm_year+1900),(timeinfo.tm_mon+1),timeinfo.tm_mday,
-        timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec, FRAMESIZE_STRING);
+		sprintf(requestBuf.remoteFileName, "%04d%02d%02d-%02d%02d%02d_%s.jpg",
+		(timeinfo.tm_year+1900),(timeinfo.tm_mon+1),timeinfo.tm_mday,
+		timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec, FRAMESIZE_STRING);
 #else
-        sprintf(requestBuf.remoteFileName, "%04d%02d%02d-%02d%02d%02d.jpg",
-        (timeinfo.tm_year+1900),(timeinfo.tm_mon+1),timeinfo.tm_mday,
-        timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+		sprintf(requestBuf.remoteFileName, "%04d%02d%02d-%02d%02d%02d.jpg",
+		(timeinfo.tm_year+1900),(timeinfo.tm_mon+1),timeinfo.tm_mday,
+		timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
 #endif
 		ESP_LOGI(TAG, "remoteFileName: %s", requestBuf.remoteFileName);
 #endif
