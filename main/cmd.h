@@ -1,6 +1,6 @@
-#define CMD_TAKE 100
-#define CMD_SEND 100
-#define CMD_HALT 400
+#define CMD_TAKE	100
+#define CMD_SEND	200
+#define CMD_HALT	900
 
 typedef struct {
     uint16_t command;
