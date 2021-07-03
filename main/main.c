@@ -148,6 +148,14 @@ static esp_err_t init_camera(int framesize)
 
 static esp_err_t camera_capture(char * FileName, size_t *pictureSize)
 {
+	//clear internal queue
+	//for(int i=0;i<2;i++) {
+	for(int i=0;i<1;i++) {
+		camera_fb_t * fb = esp_camera_fb_get();
+		ESP_LOGI(TAG, "fb->len=%d", fb->len);
+		esp_camera_fb_return(fb);
+	}
+
 	//acquire a frame
 	camera_fb_t * fb = esp_camera_fb_get();
 	if (!fb) {
@@ -563,7 +571,11 @@ void app_main(void)
 	#define FRAMESIZE_STRING "1600x1200"
 #endif
 
-	init_camera(framesize);
+	ret = init_camera(framesize);
+	if (ret != ESP_OK) {
+		while(1) { vTaskDelay(1); }
+	}
+
 
 	REQUEST_t requestBuf;
 	RESPONSE_t responseBuf;
