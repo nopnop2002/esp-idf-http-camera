@@ -19,6 +19,9 @@ Download the server from [here](https://github.com/nopnop2002/multipart-upload-s
 ## Software requirements
 esp-idf v4.3 or later.   
 
+## Hardware requirements
+ESP32-CAM   
+
 ## Installation
 Use a USB-TTL converter.   
 
