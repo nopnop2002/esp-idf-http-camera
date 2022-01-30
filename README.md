@@ -21,6 +21,7 @@ esp-idf v4.3 or later.
 
 ## Hardware requirements
 ESP32-CAM   
+![ESP32-CAM-1](https://user-images.githubusercontent.com/6020549/151690928-6cc7759c-63c2-4294-b3cd-d9a03f6b5857.JPG)
 
 ## Installation
 Use a USB-TTL converter.   
