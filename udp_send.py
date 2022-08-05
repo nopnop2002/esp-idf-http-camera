@@ -2,7 +2,7 @@
 #-*- encoding: utf-8 -*-
 #
 # Requirement library
-# python -m pip install -U netifaces
+# python3 -m pip install -U netifaces
 
 from socket import *
 import netifaces

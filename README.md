@@ -72,7 +72,7 @@ You can use static IP.
 
 ### HTTP Server Setting
 
-![config-http](https://user-images.githubusercontent.com/6020549/99767832-129ec700-2b47-11eb-9bc7-f483d20b8c5e.jpg)
+![config-http](https://user-images.githubusercontent.com/6020549/183002951-42e79610-eccf-4c8b-a03f-b6c5a9679bc2.jpg)
 
 ### Attached File Name Setting
 
@@ -126,19 +126,20 @@ I confirmed that the following GPIO can be used.
 ![config-shutter-2](https://user-images.githubusercontent.com/6020549/99897437-d2714d00-2cdc-11eb-8e59-c8bf4ef25d62.jpg)
 
 - Shutter is TCP Socket   
-You can use tcp_send.py.   
-`python ./tcp_send.py`
+You can use tcp_send.py as shutter.   
+`python3 ./tcp_send.py`
 
 ![config-shutter-3](https://user-images.githubusercontent.com/6020549/99890070-dc745b00-2c9e-11eb-9ae8-45ac11db5db5.jpg)
 
 - Shutter is UDP Socket   
-You can use udp_send.py.   
-`python ./udp_send.py`
+You can use udp_send.py as shutter.   
+Requires netifaces.   
+`python3 ./udp_send.py`
 
 ![config-shutter-4](https://user-images.githubusercontent.com/6020549/99889941-658a9280-2c9d-11eb-8bc7-06f2b67af3cb.jpg)
 
 - Shutter is HTTP Request   
-You can use this command.   
+You can use this command as shutter.   
 `curl "http://esp32-camera.local:8080/take_picture"`
 
 ![config-shutter-5](https://user-images.githubusercontent.com/6020549/99889881-b6e65200-2c9c-11eb-96c2-6fdde929dbe0.jpg)

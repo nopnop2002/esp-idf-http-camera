@@ -83,7 +83,8 @@ void tcp_server(void *pvParameters)
 
 	while (1) {
 		struct sockaddr_in6 source_addr; // Large enough for both IPv4 or IPv6
-		uint addr_len = sizeof(source_addr);
+		//uint addr_len = sizeof(source_addr);
+		socklen_t addr_len = sizeof(source_addr);
 		int sock = accept(listen_sock, (struct sockaddr *)&source_addr, &addr_len);
 		if (sock < 0) {
 			ESP_LOGE(TAG, "Unable to accept connection: errno %d", errno);

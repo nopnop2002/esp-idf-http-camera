@@ -59,7 +59,7 @@ menu "Application Configuration"
 
 		config WEB_SERVER
 			string "HTTP Server"
-			default "myhttpserver"
+			default "myhttpserver.local"
 			help
 				The host name or IP address of the HTTP server to use.
 
