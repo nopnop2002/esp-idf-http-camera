@@ -23,7 +23,7 @@ void gpio(void *pvParameter)
 	cmdBuf.command = CMD_TAKE;
 
 	// set the GPIO as a input
-	gpio_pad_select_gpio(CONFIG_GPIO_INPUT);
+	gpio_reset_pin(CONFIG_GPIO_INPUT);
 	gpio_set_direction(CONFIG_GPIO_INPUT, GPIO_MODE_DEF_INPUT);
 
 #if CONFIG_GPIO_PULLUP
