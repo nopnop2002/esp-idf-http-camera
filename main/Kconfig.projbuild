@@ -207,19 +207,12 @@ menu "Application Configuration"
 			help
 				Local port UDP server will listen on.
 
-		config LOCAL_WEB_PORT
-			int "LOCAL WEB PORT"
+		config SHUTTER_URL
+			string "URL for built-in WEB server"
 			depends on SHUTTER_HTTP
-			default 8080
+			default "/take/picture"
 			help
-				Local port for WEB server.
-
-		config LOCAL_WEB_URL
-			string "LOCAL WEB URL"
-			depends on SHUTTER_HTTP
-			default "/take_picture"
-			help
-				local URL for WEB server.
+				URL for built-in WEB server.
 				Must start with /.
 
 	endmenu

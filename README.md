@@ -140,9 +140,9 @@ Requires netifaces.
 
 - Shutter is HTTP Request   
 You can use this command as shutter.   
-`curl "http://esp32-camera.local:8080/take_picture"`
+`curl "http://esp32-camera.local:8080/take/picture"`
 
-![config-shutter-5](https://user-images.githubusercontent.com/6020549/99889881-b6e65200-2c9c-11eb-96c2-6fdde929dbe0.jpg)
+![config-shutter-5](https://user-images.githubusercontent.com/6020549/193444800-ed7ac318-307d-4c12-baec-9b32b98df77c.jpg)
 
 
 ### Flash Light
@@ -152,3 +152,9 @@ ESP32-CAM by AI-Thinker have flash light on GPIO4.
 ![config-flash](https://user-images.githubusercontent.com/6020549/99890190-0b3f0100-2ca0-11eb-94c6-ba7e2cfe1727.jpg)
 
 
+# View picture using Built-in WEB Server
+You can view the pictures taken using the built-in WEB server.   
+Enter the ESP32's IP address and port number in the address bar of your browser.   
+You can use mDNS instead of IP address.   
+
+![browser](https://user-images.githubusercontent.com/6020549/124227364-837a7880-db45-11eb-9d8b-fa15c676adac.jpg)

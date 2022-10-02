@@ -49,7 +49,7 @@ static const char *TAG = "MAIN";
 static int s_retry_num = 0;
 
 QueueHandle_t xQueueCmd;
-QueueHandle_t xQueueSmtp;
+QueueHandle_t xQueueHttp;
 QueueHandle_t xQueueRequest;
 QueueHandle_t xQueueResponse;
 
@@ -182,111 +182,111 @@ static esp_err_t camera_capture(char * FileName, size_t *pictureSize)
 }
 
 static void event_handler(void* arg, esp_event_base_t event_base,
-                                int32_t event_id, void* event_data)
+								int32_t event_id, void* event_data)
 {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        esp_wifi_connect();
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        if (s_retry_num < CONFIG_ESP_MAXIMUM_RETRY) {
-            esp_wifi_connect();
-            s_retry_num++;
-            ESP_LOGI(TAG, "retry to connect to the AP");
-        } else {
-            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-        }
-        ESP_LOGI(TAG,"connect to the AP fail");
-    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
-        s_retry_num = 0;
-        xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-    }
+	if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+		esp_wifi_connect();
+	} else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+		if (s_retry_num < CONFIG_ESP_MAXIMUM_RETRY) {
+			esp_wifi_connect();
+			s_retry_num++;
+			ESP_LOGI(TAG, "retry to connect to the AP");
+		} else {
+			xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+		}
+		ESP_LOGI(TAG,"connect to the AP fail");
+	} else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+		ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+		ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+		s_retry_num = 0;
+		xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+	}
 }
 
 void wifi_init_sta()
 {
-    s_wifi_event_group = xEventGroupCreate();
+	s_wifi_event_group = xEventGroupCreate();
 
-    ESP_LOGI(TAG,"ESP-IDF esp_netif");
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_t *netif = esp_netif_create_default_wifi_sta();
-    assert(netif);
+	ESP_LOGI(TAG,"ESP-IDF esp_netif");
+	ESP_ERROR_CHECK(esp_netif_init());
+	ESP_ERROR_CHECK(esp_event_loop_create_default());
+	esp_netif_t *netif = esp_netif_create_default_wifi_sta();
+	assert(netif);
 
 #if CONFIG_STATIC_IP
 
-    ESP_LOGI(TAG, "CONFIG_STATIC_IP_ADDRESS=[%s]",CONFIG_STATIC_IP_ADDRESS);
-    ESP_LOGI(TAG, "CONFIG_STATIC_GW_ADDRESS=[%s]",CONFIG_STATIC_GW_ADDRESS);
-    ESP_LOGI(TAG, "CONFIG_STATIC_NM_ADDRESS=[%s]",CONFIG_STATIC_NM_ADDRESS);
+	ESP_LOGI(TAG, "CONFIG_STATIC_IP_ADDRESS=[%s]",CONFIG_STATIC_IP_ADDRESS);
+	ESP_LOGI(TAG, "CONFIG_STATIC_GW_ADDRESS=[%s]",CONFIG_STATIC_GW_ADDRESS);
+	ESP_LOGI(TAG, "CONFIG_STATIC_NM_ADDRESS=[%s]",CONFIG_STATIC_NM_ADDRESS);
 
-    /* Stop DHCP client */
-    ESP_ERROR_CHECK(esp_netif_dhcpc_stop(netif));
-    ESP_LOGI(TAG, "Stop DHCP Services");
+	/* Stop DHCP client */
+	ESP_ERROR_CHECK(esp_netif_dhcpc_stop(netif));
+	ESP_LOGI(TAG, "Stop DHCP Services");
 
-    /* Set STATIC IP Address */
-    esp_netif_ip_info_t ip_info;
-    memset(&ip_info, 0 , sizeof(esp_netif_ip_info_t));
-    ip_info.ip.addr = ipaddr_addr(CONFIG_STATIC_IP_ADDRESS);
-    ip_info.netmask.addr = ipaddr_addr(CONFIG_STATIC_NM_ADDRESS);
-    ip_info.gw.addr = ipaddr_addr(CONFIG_STATIC_GW_ADDRESS);;
-    esp_netif_set_ip_info(netif, &ip_info);
+	/* Set STATIC IP Address */
+	esp_netif_ip_info_t ip_info;
+	memset(&ip_info, 0 , sizeof(esp_netif_ip_info_t));
+	ip_info.ip.addr = ipaddr_addr(CONFIG_STATIC_IP_ADDRESS);
+	ip_info.netmask.addr = ipaddr_addr(CONFIG_STATIC_NM_ADDRESS);
+	ip_info.gw.addr = ipaddr_addr(CONFIG_STATIC_GW_ADDRESS);;
+	esp_netif_set_ip_info(netif, &ip_info);
 
-    /*
-    I referred from here.
-    https://www.esp32.com/viewtopic.php?t=5380
+	/*
+	I referred from here.
+	https://www.esp32.com/viewtopic.php?t=5380
 
-    if we should not be using DHCP (for example we are using static IP addresses),
-    then we need to instruct the ESP32 of the locations of the DNS servers manually.
-    Google publicly makes available two name servers with the addresses of 8.8.8.8 and 8.8.4.4.
-    */
+	if we should not be using DHCP (for example we are using static IP addresses),
+	then we need to instruct the ESP32 of the locations of the DNS servers manually.
+	Google publicly makes available two name servers with the addresses of 8.8.8.8 and 8.8.4.4.
+	*/
 
-    ip_addr_t d;
-    d.type = IPADDR_TYPE_V4;
-    d.u_addr.ip4.addr = 0x08080808; //8.8.8.8 dns
-    dns_setserver(0, &d);
-    d.u_addr.ip4.addr = 0x08080404; //8.8.4.4 dns
-    dns_setserver(1, &d);
+	ip_addr_t d;
+	d.type = IPADDR_TYPE_V4;
+	d.u_addr.ip4.addr = 0x08080808; //8.8.8.8 dns
+	dns_setserver(0, &d);
+	d.u_addr.ip4.addr = 0x08080404; //8.8.4.4 dns
+	dns_setserver(1, &d);
 
 #endif // CONFIG_STATIC_IP
 
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+	ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
+	ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
+	ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
 
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = CONFIG_ESP_WIFI_SSID,
-            .password = CONFIG_ESP_WIFI_PASSWORD
-        },
-    };
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
-    ESP_ERROR_CHECK(esp_wifi_start() );
+	wifi_config_t wifi_config = {
+		.sta = {
+			.ssid = CONFIG_ESP_WIFI_SSID,
+			.password = CONFIG_ESP_WIFI_PASSWORD
+		},
+	};
+	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
+	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
+	ESP_ERROR_CHECK(esp_wifi_start() );
 
-    ESP_LOGI(TAG, "wifi_init_sta finished.");
+	ESP_LOGI(TAG, "wifi_init_sta finished.");
 
-    /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
-     * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
-    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
-            WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-            pdFALSE,
-            pdFALSE,
-            portMAX_DELAY);
+	/* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
+	 * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
+	EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
+			WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
+			pdFALSE,
+			pdFALSE,
+			portMAX_DELAY);
 
-    /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
-     * happened. */
-    if (bits & WIFI_CONNECTED_BIT) {
-        ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-                 CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
-    } else if (bits & WIFI_FAIL_BIT) {
-        ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-                 CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
-    } else {
-        ESP_LOGE(TAG, "UNEXPECTED EVENT");
-    }
-    vEventGroupDelete(s_wifi_event_group);
+	/* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
+	 * happened. */
+	if (bits & WIFI_CONNECTED_BIT) {
+		ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
+				 CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
+	} else if (bits & WIFI_FAIL_BIT) {
+		ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
+				 CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
+	} else {
+		ESP_LOGE(TAG, "UNEXPECTED EVENT");
+	}
+	vEventGroupDelete(s_wifi_event_group);
 }
 
 void initialise_mdns(void)
@@ -391,9 +391,7 @@ void tcp_server(void *pvParameters);
 void udp_server(void *pvParameters);
 #endif
 
-#if CONFIG_SHUTTER_HTTP
-void web_server(void *pvParameters);
-#endif
+void http_task(void *pvParameters);
 
 void app_main(void)
 {
@@ -446,11 +444,13 @@ void app_main(void)
 
 	/* Create Queue */
 	xQueueCmd = xQueueCreate( 1, sizeof(CMD_t) );
-	xQueueRequest = xQueueCreate( 1, sizeof(REQUEST_t) );
-	xQueueResponse = xQueueCreate( 1, sizeof(RESPONSE_t) );
 	configASSERT( xQueueCmd );
+	xQueueRequest = xQueueCreate( 1, sizeof(REQUEST_t) );
 	configASSERT( xQueueRequest );
+	xQueueResponse = xQueueCreate( 1, sizeof(RESPONSE_t) );
 	configASSERT( xQueueResponse );
+	xQueueHttp = xQueueCreate( 10, sizeof(HTTP_t) );
+	configASSERT( xQueueHttp );
 
 	/* Create HTTP Client Task */
 	xTaskCreate(&http_post_task, "POST", 4096, NULL, 5, NULL);
@@ -478,8 +478,20 @@ void app_main(void)
 
 #if CONFIG_SHUTTER_HTTP
 #define SHUTTER "HTTP Request"
-	xTaskCreate(web_server, "WEB", 1024*4, NULL, 2, NULL);
 #endif
+
+	/* Get the local IP address */
+	//tcpip_adapter_ip_info_t ip_info;
+	//ESP_ERROR_CHECK(tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip_info));
+	esp_netif_ip_info_t ip_info;
+	ESP_ERROR_CHECK(esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_STA_DEF"), &ip_info));
+
+	/* Create HTTP Task */
+	char cparam0[64];
+	//sprintf(cparam0, "%s", ip4addr_ntoa(&ip_info.ip));
+	sprintf(cparam0, IPSTR, IP2STR(&ip_info.ip));
+	ESP_LOGI(TAG, "cparam0=[%s]", cparam0);
+	xTaskCreate(http_task, "HTTP", 1024*6, (void *)cparam0, 2, NULL);
 
 #if CONFIG_FRAMESIZE_VGA
 	int framesize = FRAMESIZE_VGA;
@@ -514,15 +526,25 @@ void app_main(void)
 	sprintf(requestBuf.localFileName, "%s/picture.jpg", base_path);
 	ESP_LOGI(TAG, "localFileName=%s",requestBuf.localFileName);
 #if CONFIG_REMOTE_IS_FIXED_NAME
-	//sprintf(requestBuf.remoteFileName, "picture.jpg");
 #if CONFIG_REMOTE_FRAMESIZE
-	sprintf(requestBuf.remoteFileName, "%s_%s", CONFIG_FIXED_REMOTE_FILE, FRAMESIZE_STRING);
+	char baseFileName[64];
+	strcpy(baseFileName, CONFIG_FIXED_REMOTE_FILE);
+	for (int index=0;index<strlen(baseFileName);index++) {
+		if (baseFileName[index] == 0x2E) baseFileName[index] = 0;
+	}
+	ESP_LOGI(TAG, "baseFileName=[%s]", baseFileName);
+	// picture_640x480.jpg
+	sprintf(requestBuf.remoteFileName, "%s_%s.jpg", baseFileName, FRAMESIZE_STRING);
 #else
+	// picture.jpg
 	sprintf(requestBuf.remoteFileName, "%s", CONFIG_FIXED_REMOTE_FILE);
 #endif
 	ESP_LOGI(TAG, "remoteFileName=%s",requestBuf.remoteFileName);
 #endif
 
+    HTTP_t httpBuf;
+    httpBuf.taskHandle = xTaskGetCurrentTaskHandle();
+    strcpy(httpBuf.localFileName, requestBuf.localFileName);
 	CMD_t cmdBuf;
 
 	while(1) {
@@ -545,10 +567,12 @@ void app_main(void)
 		strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
 		ESP_LOGI(TAG, "The current date/time is: %s", strftime_buf);
 #if CONFIG_REMOTE_FRAMESIZE
+		// 20220927-110940_640x480.jpg
 		sprintf(requestBuf.remoteFileName, "%04d%02d%02d-%02d%02d%02d_%s.jpg",
 		(timeinfo.tm_year+1900),(timeinfo.tm_mon+1),timeinfo.tm_mday,
 		timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec, FRAMESIZE_STRING);
 #else
+		// 20220927-110742.jpg
 		sprintf(requestBuf.remoteFileName, "%04d%02d%02d-%02d%02d%02d.jpg",
 		(timeinfo.tm_year+1900),(timeinfo.tm_mon+1),timeinfo.tm_mday,
 		timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
@@ -602,6 +626,10 @@ void app_main(void)
 #endif
 		}
 
+		// send local file name to http task
+		if (xQueueSend(xQueueHttp, &httpBuf, 10) != pdPASS) {
+			ESP_LOGE(TAG, "xQueueSend xQueueHttp fail");
+		}
 	} // end while	
 
 }
