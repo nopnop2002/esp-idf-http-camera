@@ -1,4 +1,4 @@
-/* HTTP GET Example using plain POSIX sockets
+/* HTTP POST Example using plain POSIX sockets
 
    This example code is in the Public Domain (or CC0 licensed, at your option.)
 
@@ -6,6 +6,9 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
+
+#include <stdio.h>
+#include <inttypes.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -186,9 +189,9 @@ void http_post_task(void *pvParameters)
 		bzero(responseBuf.response, sizeof(responseBuf.response));
 		do {
 			bzero(recv_buf, sizeof(recv_buf));
-			ESP_LOGD(TAG, "Start read now=%d", xTaskGetTickCount());
+			ESP_LOGD(TAG, "Start read now=%"PRIu32, xTaskGetTickCount());
 			readed = read(s, recv_buf, sizeof(recv_buf)-1);
-			ESP_LOGD(TAG, "End	 read now=%d readed=%d", xTaskGetTickCount(), readed);
+			ESP_LOGD(TAG, "End	 read now=%"PRIu32" readed=%d", xTaskGetTickCount(), readed);
 #if 0
 			for(int i = 0; i < readed; i++) {
 				putchar(recv_buf[i]);

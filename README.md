@@ -16,15 +16,17 @@ Download the server from [here](https://github.com/nopnop2002/multipart-upload-s
 
 # ESP32 Side
 
+# Hardware requirements
+ESP32 development board with OV2640 camera.   
+If you use other camera, edit sdkconfig.default.   
+![ESP32-Camera-board](https://user-images.githubusercontent.com/6020549/198520670-27ea9bd1-71d8-438f-be58-8516154be4af.JPG)
+
 ## Software requirements
 esp-idf v4.3 or later.   
 
-## Hardware requirements
-ESP32-CAM   
-![ESP32-CAM-1](https://user-images.githubusercontent.com/6020549/151690928-6cc7759c-63c2-4294-b3cd-d9a03f6b5857.JPG)
 
 ## Installation
-Use a USB-TTL converter.   
+For AiThinker ESP32-CAM, You have to use a USB-TTL converter.   
 
 |ESP-32|USB-TTL|
 |:-:|:-:|
@@ -45,13 +47,13 @@ idf.py flash monitor
 ```
 
 ## Start firmware
-Change GPIO0 to open and press the RESET button.
+For AiThinker ESP32-CAM, Change GPIO0 to open and press the RESET button.
 
 ## Configuration
 Set the following items using menuconfig.
 
 ![config-main](https://user-images.githubusercontent.com/6020549/66692052-c17e9b80-ecd5-11e9-8316-075350ceb2e9.jpg)
-![config-app](https://user-images.githubusercontent.com/6020549/119243496-50d27d00-bba2-11eb-9c75-4e06d4d19444.jpg)
+![config-app](https://user-images.githubusercontent.com/6020549/200204471-35b658fc-40b7-47aa-b0ba-86979049eba4.jpg)
 
 ### Wifi Setting
 
@@ -100,6 +102,11 @@ When this is enabled, FrameSize is added to remote file name like this.
 `20210520-165740_800x600.jpg`   
 
 ![config-filename-3](https://user-images.githubusercontent.com/6020549/119243501-529c4080-bba2-11eb-8ba4-85cdd764b0fc.jpg)
+
+
+## Select Board
+![config-board](https://user-images.githubusercontent.com/6020549/200204500-d5508753-7a80-4fe2-a11d-e69664ec509d.jpg)
+
 
 ### Select Frame Size
 Large frame sizes take longer to take a picture.   

@@ -108,7 +108,7 @@ menu "Application Configuration"
 		config LOCAL_TIMEZONE
 			depends on REMOTE_IS_VARIABLE_NAME
 			int "Your TimeZone"
-			range 0 23
+			range -23 23
 			default 0
 			help
 				Your local timezone.  When it is 0, Greenwich Mean Time.
@@ -120,6 +120,22 @@ menu "Application Configuration"
 				Add FrameSize to Remote file name.
 
 	endmenu
+
+	choice BOARD
+		bool "Select Board"
+		default BOARD_ESP32CAM_AITHINKER
+		help
+			Select Board Type.
+
+		config BOARD_WROVER_KIT
+			bool "Freenove ESP32-WROVER CAM Board"
+		config BOARD_CAMERA_MODEL_ESP_EYE
+			bool "Espressif ESP-EYE"
+		config BOARD_ESP32CAM_AITHINKER
+			bool "AiThinker ESP32-CAM"
+		config BOARD_CAMERA_MODEL_TTGO_T_JOURNAL
+			bool "TTGO T-Journal ESP32 Camera"
+	endchoice
 
 	choice FRAMESIZE
 		bool "Select Frame Size"

@@ -7,6 +7,8 @@
 	 CONDITIONS OF ANY KIND, either express or implied.
 */
 
+#include <stdio.h>
+#include <inttypes.h>
 #include <sys/stat.h>
 #include <mbedtls/base64.h>
 #include "freertos/FreeRTOS.h"
@@ -105,7 +107,7 @@ static esp_err_t root_get_handler(httpd_req_t *req)
 
 	ESP_LOGI(TAG, "%s exist st.st_size=%ld", localFileName, st.st_size);
 	int32_t base64Size = calcBase64EncodedSize(st.st_size);
-	ESP_LOGI(TAG, "base64Size=%d", base64Size);
+	ESP_LOGI(TAG, "base64Size=%"PRIi32, base64Size);
 
 	/* Send HTML file header */
 	httpd_resp_sendstr_chunk(req, "<!DOCTYPE html><html><body>");
