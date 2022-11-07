@@ -22,7 +22,7 @@ If you use other camera, edit sdkconfig.default.
 ![ESP32-Camera-board](https://user-images.githubusercontent.com/6020549/198520670-27ea9bd1-71d8-438f-be58-8516154be4af.JPG)
 
 ## Software requirements
-esp-idf v4.3 or later.   
+esp-idf v4.4 or later.   
 
 
 ## Installation
