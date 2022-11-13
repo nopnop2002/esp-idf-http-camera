@@ -483,7 +483,7 @@ void app_main(void)
 	ESP_LOGI(TAG, "localFileName=%s",requestBuf.localFileName);
 #if CONFIG_REMOTE_IS_FIXED_NAME
 #if CONFIG_REMOTE_FRAMESIZE
-	char baseFileName[64];
+	char baseFileName[32];
 	strcpy(baseFileName, CONFIG_FIXED_REMOTE_FILE);
 	for (int index=0;index<strlen(baseFileName);index++) {
 		if (baseFileName[index] == 0x2E) baseFileName[index] = 0;
