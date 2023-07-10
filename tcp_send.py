@@ -3,7 +3,7 @@
 import socket
 
 host = "esp32-camera.local" # esp32 hostname
-port = 9876
+port = 49876
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 

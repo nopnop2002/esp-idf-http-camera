@@ -210,16 +210,16 @@ menu "Application Configuration"
 		config TCP_PORT
 			int "TCP Port"
 			depends on SHUTTER_TCP
-			range 0 65535
-			default 9876
+			range 49152 65535
+			default 49876
 			help
 				Local port TCP server will listen on.
 
 		config UDP_PORT
 			int "UDP Port"
 			depends on SHUTTER_UDP
-			range 0 65535
-			default 9876
+			range 49152 65535
+			default 49876
 			help
 				Local port UDP server will listen on.
 

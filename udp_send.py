@@ -23,7 +23,7 @@ myIpList = myIp.split('.')
 print("myIpList={}".format(myIpList))
 
 HOST = ''
-PORT = 9876
+PORT = 49876
 #ADDRESS = "192.168.10.255" # for Broadcast
 ADDRESS = "{}.{}.{}.255".format(myIpList[0], myIpList[1], myIpList[2])
 print("ADDRESS={}".format(ADDRESS))
