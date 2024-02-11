@@ -1,6 +1,6 @@
 # esp-idf-http-camera
 Take a picture and Publish it via HTTP.   
-This project use [ESP32 Camera Driver](https://github.com/espressif/esp32-camera).
+This project use [ESP32 Camera Driver](https://components.espressif.com/components/espressif/esp32-camera).   
 
 ![slide-0001](https://user-images.githubusercontent.com/6020549/119491922-7a092e00-bd99-11eb-8260-a52e9f5bddc2.jpg)
 ![slide-0002](https://user-images.githubusercontent.com/6020549/119491927-7bd2f180-bd99-11eb-88aa-a4c4c9ab6c84.jpg)
@@ -19,7 +19,12 @@ Download the server from [here](https://github.com/nopnop2002/multipart-upload-s
 # Hardware requirements
 ESP32 development board with OV2640 camera.   
 If you use other camera, edit sdkconfig.default.   
-![ESP32-Camera-board](https://user-images.githubusercontent.com/6020549/198520670-27ea9bd1-71d8-438f-be58-8516154be4af.JPG)
+From the left:   
+- Aithinker ESP32-CAM   
+- Freenove ESP32-WROVER CAM   
+- UICPAL ESPS3 CAM   
+
+![UICPAL-ESP32-S3-3](https://github.com/nopnop2002/esp-idf-http-camera/assets/6020549/3b7ccd9d-38b9-4305-b44c-2ea7b09c803d)
 
 ## Software requirements
 esp-idf v4.4/v5.0.   
@@ -40,7 +45,6 @@ For AiThinker ESP32-CAM, You have to use a USB-TTL converter.
 ```
 git clone https://github.com/nopnop2002/esp-idf-http-camera
 cd esp-idf-http-camera
-git clone https://github.com/espressif/esp32-camera components/esp32-camera
 idf.py set-target esp32
 idf.py menuconfig
 idf.py flash monitor
@@ -105,7 +109,7 @@ When this is enabled, FrameSize is added to remote file name like this.
 
 
 ### Select Board
-![config-board](https://user-images.githubusercontent.com/6020549/200204500-d5508753-7a80-4fe2-a11d-e69664ec509d.jpg)
+![config-board](https://github.com/nopnop2002/esp-idf-http-camera/assets/6020549/732c9574-68df-4e52-9b9e-6071d7ce5737)
 
 
 ### Select Frame Size
