@@ -174,8 +174,9 @@ ESP32-CAM by AI-Thinker have flash light on GPIO4.
 
 
 # View picture using Built-in WEB Server
+ESP32 works as a web server.   
 You can view the pictures taken using the built-in WEB server.   
 Enter the ESP32's IP address and port number in the address bar of your browser.   
-You can use mDNS instead of IP address.   
+You can connect using mDNS hostname instead of IP address.   
 
 ![browser](https://user-images.githubusercontent.com/6020549/124227364-837a7880-db45-11eb-9d8b-fa15c676adac.jpg)
