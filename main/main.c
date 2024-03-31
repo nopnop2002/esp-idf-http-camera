@@ -58,7 +58,6 @@ static int s_retry_num = 0;
 QueueHandle_t xQueueCmd;
 QueueHandle_t xQueueHttp;
 QueueHandle_t xQueueRequest;
-QueueHandle_t xQueueResponse;
 
 
 //static camera_config_t camera_config = {
@@ -363,8 +362,10 @@ void app_main(void)
 	}
 	ESP_ERROR_CHECK(ret);
 
-	ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
+	// Initilize WiFi
 	wifi_init_sta();
+
+	// Initialize mDNS
 	initialise_mdns();
 
 #if CONFIG_REMOTE_IS_VARIABLE_NAME
@@ -407,8 +408,6 @@ void app_main(void)
 	configASSERT( xQueueCmd );
 	xQueueRequest = xQueueCreate( 1, sizeof(REQUEST_t) );
 	configASSERT( xQueueRequest );
-	xQueueResponse = xQueueCreate( 1, sizeof(RESPONSE_t) );
-	configASSERT( xQueueResponse );
 	xQueueHttp = xQueueCreate( 10, sizeof(HTTP_t) );
 	configASSERT( xQueueHttp );
 
@@ -478,7 +477,6 @@ void app_main(void)
 
 
 	REQUEST_t requestBuf;
-	RESPONSE_t responseBuf;
 	requestBuf.command = CMD_SEND;
 	requestBuf.taskHandle = xTaskGetCurrentTaskHandle();
 	//sprintf(requestBuf.localFileName, "%s/picture.jpg", base_path);
@@ -501,9 +499,9 @@ void app_main(void)
 	ESP_LOGI(TAG, "remoteFileName=%s",requestBuf.remoteFileName);
 #endif
 
-    HTTP_t httpBuf;
-    httpBuf.taskHandle = xTaskGetCurrentTaskHandle();
-    strcpy(httpBuf.localFileName, requestBuf.localFileName);
+	HTTP_t httpBuf;
+	httpBuf.taskHandle = xTaskGetCurrentTaskHandle();
+	strcpy(httpBuf.localFileName, requestBuf.localFileName);
 	CMD_t cmdBuf;
 
 	while(1) {
@@ -575,14 +573,8 @@ void app_main(void)
 		if (xQueueSend(xQueueRequest, &requestBuf, 10) != pdPASS) {
 			ESP_LOGE(TAG, "xQueueSend fail");
 		} else {
-			xQueueReceive(xQueueResponse, &responseBuf, portMAX_DELAY);
-			ESP_LOGI(TAG, "\n%s", responseBuf.response);
-#if 0
-			for(int i = 0; i < strlen(responseBuf.response); i++) {
-				putchar(responseBuf.response[i]);
-			}
-			printf("\n");
-#endif
+			uint32_t value = ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
+			ESP_LOGI(TAG, "ulTaskNotifyTake value=%"PRIx32, value);
 		}
 
 		// send local file name to http task

@@ -33,7 +33,6 @@
 #define BOUNDARY "X-ESPIDF_MULTIPART"
 
 extern QueueHandle_t xQueueRequest;
-extern QueueHandle_t xQueueResponse;
 
 static const char *TAG = "POST";
 
@@ -61,6 +60,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGI(TAG, "st_size=%d", (int)statBuf.st_size);
 		} else {
 			ESP_LOGE(TAG, "stat fail");
+			xTaskNotify(requestBuf.taskHandle, 0x01, eSetValueWithOverwrite);
 			continue;
 		}
 
@@ -69,6 +69,7 @@ void http_post_task(void *pvParameters)
 		if(err != 0 || res == NULL) {
 			ESP_LOGE(TAG, "DNS lookup failed err=%d res=%p", err, res);
 			vTaskDelay(1000 / portTICK_PERIOD_MS);
+			xTaskNotify(requestBuf.taskHandle, 0x02, eSetValueWithOverwrite);
 			continue;
 		}
 
@@ -83,6 +84,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... Failed to allocate socket.");
 			freeaddrinfo(res);
 			vTaskDelay(1000 / portTICK_PERIOD_MS);
+			xTaskNotify(requestBuf.taskHandle, 0x03, eSetValueWithOverwrite);
 			continue;
 		}
 		ESP_LOGI(TAG, "... allocated socket");
@@ -92,6 +94,7 @@ void http_post_task(void *pvParameters)
 			close(s);
 			freeaddrinfo(res);
 			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			xTaskNotify(requestBuf.taskHandle, 0x04, eSetValueWithOverwrite);
 			continue;
 		}
 
@@ -133,6 +136,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... socket send failed");
 			close(s);
 			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			xTaskNotify(requestBuf.taskHandle, 0x05, eSetValueWithOverwrite);
 			continue;
 		}
 		ESP_LOGI(TAG, "HEADER socket send success");
@@ -142,6 +146,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... socket send failed");
 			close(s);
 			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			xTaskNotify(requestBuf.taskHandle, 0x06, eSetValueWithOverwrite);
 			continue;
 		}
 		ESP_LOGI(TAG, "BODY socket send success");
@@ -157,6 +162,7 @@ void http_post_task(void *pvParameters)
 				ESP_LOGE(TAG, "... socket send failed");
 				close(s);
 				vTaskDelay(4000 / portTICK_PERIOD_MS);
+				xTaskNotify(requestBuf.taskHandle, 0x07, eSetValueWithOverwrite);
 				continue;
 			}
 		}
@@ -167,6 +173,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... socket send failed");
 			close(s);
 			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			xTaskNotify(requestBuf.taskHandle, 0x08, eSetValueWithOverwrite);
 			continue;
 		}
 		ESP_LOGI(TAG, "END socket send success");
@@ -179,36 +186,40 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... failed to set socket receiving timeout");
 			close(s);
 			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			xTaskNotify(requestBuf.taskHandle, 0x09, eSetValueWithOverwrite);
 			continue;
 		}
 		ESP_LOGI(TAG, "... set socket receiving timeout success");
 
 		/* Read HTTP response */
 		int readed;
-		RESPONSE_t responseBuf;
-		bzero(responseBuf.response, sizeof(responseBuf.response));
+		char responseBuf[128];
+		int responseLen = 0;
+		bzero(responseBuf, sizeof(responseBuf));
 		do {
 			bzero(recv_buf, sizeof(recv_buf));
-			ESP_LOGD(TAG, "Start read now=%"PRIu32, xTaskGetTickCount());
 			readed = read(s, recv_buf, sizeof(recv_buf)-1);
-			ESP_LOGD(TAG, "End	 read now=%"PRIu32" readed=%d", xTaskGetTickCount(), readed);
+			ESP_LOGI(TAG, "readed=%d", readed);
 #if 0
 			for(int i = 0; i < readed; i++) {
 				putchar(recv_buf[i]);
 			}
 #endif
-			strcat(responseBuf.response, recv_buf);
+			strcat(responseBuf, recv_buf);
+			responseLen = responseLen + readed;
 		} while(readed > 0);
 #if 0
 		printf("\n");
 #endif
 
-		/* send HTTP response */
-		if (xQueueSend(xQueueResponse, &responseBuf, 10) != pdPASS) {
-			ESP_LOGE(TAG, "xQueueSend fail");
+		/* send response */
+		ESP_LOGI(TAG, "done reading from socket. Last read return=%d errno=%d.", readed, errno);
+		ESP_LOGI(TAG, "responseBuf=[%.*s]", responseLen, responseBuf);
+		if (strncmp(responseBuf, "HTTP/1.1 200", 12) == 0) {
+			xTaskNotify(requestBuf.taskHandle, 0x00, eSetValueWithOverwrite);
+		} else {
+			xTaskNotify(requestBuf.taskHandle, 0x90, eSetValueWithOverwrite);
 		}
-
-		ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d.", readed, errno);
 		close(s);
 
 	}
