@@ -68,13 +68,12 @@ void http_post_task(void *pvParameters)
 
 		if(err != 0 || res == NULL) {
 			ESP_LOGE(TAG, "DNS lookup failed err=%d res=%p", err, res);
-			vTaskDelay(1000 / portTICK_PERIOD_MS);
+			//vTaskDelay(1000 / portTICK_PERIOD_MS);
 			xTaskNotify(requestBuf.taskHandle, 0x02, eSetValueWithOverwrite);
 			continue;
 		}
 
 		/* Code to print the resolved IP.
-
 		   Note: inet_ntoa is non-reentrant, look at ipaddr_ntoa_r for "real" code */
 		addr = &((struct sockaddr_in *)res->ai_addr)->sin_addr;
 		ESP_LOGI(TAG, "DNS lookup succeeded. IP=%s", inet_ntoa(*addr));
@@ -83,7 +82,7 @@ void http_post_task(void *pvParameters)
 		if(s < 0) {
 			ESP_LOGE(TAG, "... Failed to allocate socket.");
 			freeaddrinfo(res);
-			vTaskDelay(1000 / portTICK_PERIOD_MS);
+			//vTaskDelay(1000 / portTICK_PERIOD_MS);
 			xTaskNotify(requestBuf.taskHandle, 0x03, eSetValueWithOverwrite);
 			continue;
 		}
@@ -93,7 +92,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... socket connect failed errno=%d", errno);
 			close(s);
 			freeaddrinfo(res);
-			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			//vTaskDelay(4000 / portTICK_PERIOD_MS);
 			xTaskNotify(requestBuf.taskHandle, 0x04, eSetValueWithOverwrite);
 			continue;
 		}
@@ -135,7 +134,7 @@ void http_post_task(void *pvParameters)
 		if (write(s, HEADER, strlen(HEADER)) < 0) {
 			ESP_LOGE(TAG, "... socket send failed");
 			close(s);
-			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			//vTaskDelay(4000 / portTICK_PERIOD_MS);
 			xTaskNotify(requestBuf.taskHandle, 0x05, eSetValueWithOverwrite);
 			continue;
 		}
@@ -145,7 +144,7 @@ void http_post_task(void *pvParameters)
 		if (write(s, BODY, strlen(BODY)) < 0) {
 			ESP_LOGE(TAG, "... socket send failed");
 			close(s);
-			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			//vTaskDelay(4000 / portTICK_PERIOD_MS);
 			xTaskNotify(requestBuf.taskHandle, 0x06, eSetValueWithOverwrite);
 			continue;
 		}
@@ -161,7 +160,7 @@ void http_post_task(void *pvParameters)
 			if (write(s, dataBuffer, len) < 0) {
 				ESP_LOGE(TAG, "... socket send failed");
 				close(s);
-				vTaskDelay(4000 / portTICK_PERIOD_MS);
+				//vTaskDelay(4000 / portTICK_PERIOD_MS);
 				xTaskNotify(requestBuf.taskHandle, 0x07, eSetValueWithOverwrite);
 				continue;
 			}
@@ -172,7 +171,7 @@ void http_post_task(void *pvParameters)
 		if (write(s, END, strlen(END)) < 0) {
 			ESP_LOGE(TAG, "... socket send failed");
 			close(s);
-			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			//vTaskDelay(4000 / portTICK_PERIOD_MS);
 			xTaskNotify(requestBuf.taskHandle, 0x08, eSetValueWithOverwrite);
 			continue;
 		}
@@ -185,7 +184,7 @@ void http_post_task(void *pvParameters)
 				sizeof(receiving_timeout)) < 0) {
 			ESP_LOGE(TAG, "... failed to set socket receiving timeout");
 			close(s);
-			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			//vTaskDelay(4000 / portTICK_PERIOD_MS);
 			xTaskNotify(requestBuf.taskHandle, 0x09, eSetValueWithOverwrite);
 			continue;
 		}
