@@ -192,7 +192,7 @@ void http_post_task(void *pvParameters)
 
 		/* Read HTTP response */
 		int readed;
-		char responseBuf[128];
+		char responseBuf[256];
 		int responseLen = 0;
 		bzero(responseBuf, sizeof(responseBuf));
 		do {
@@ -204,15 +204,17 @@ void http_post_task(void *pvParameters)
 				putchar(recv_buf[i]);
 			}
 #endif
-			strcat(responseBuf, recv_buf);
-			responseLen = responseLen + readed;
+			if (responseLen + readed < sizeof(responseBuf)-1) {
+				strcat(responseBuf, recv_buf);
+				responseLen = responseLen + readed;
+			}
 		} while(readed > 0);
 #if 0
 		printf("\n");
 #endif
 
 		/* send response */
-		ESP_LOGI(TAG, "done reading from socket. Last read return=%d errno=%d.", readed, errno);
+		ESP_LOGI(TAG, "done reading from socket. Last readed=%d responseLen=%d errno=%d.", readed, responseLen, errno);
 		ESP_LOGI(TAG, "responseBuf=[%.*s]", responseLen, responseBuf);
 		if (strncmp(responseBuf, "HTTP/1.1 200", 12) == 0) {
 			xTaskNotify(requestBuf.taskHandle, 0x00, eSetValueWithOverwrite);
