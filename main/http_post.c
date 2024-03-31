@@ -49,6 +49,9 @@ void http_post_task(void *pvParameters)
 
 	REQUEST_t requestBuf;
 	while(1) {
+		RESPONSE_t responseBuf;
+		bzero(responseBuf.response, sizeof(responseBuf.response));
+
 		ESP_LOGI(TAG,"Waitting....");
 		xQueueReceive(xQueueRequest, &requestBuf, portMAX_DELAY);
 		ESP_LOGI(TAG,"requestBuf.command=%d", requestBuf.command);
@@ -61,7 +64,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGI(TAG, "st_size=%d", (int)statBuf.st_size);
 		} else {
 			ESP_LOGE(TAG, "stat fail");
-			continue;
+            goto done;
 		}
 
 		int err = getaddrinfo(CONFIG_WEB_SERVER, CONFIG_WEB_PORT, &hints, &res);
@@ -69,7 +72,7 @@ void http_post_task(void *pvParameters)
 		if(err != 0 || res == NULL) {
 			ESP_LOGE(TAG, "DNS lookup failed err=%d res=%p", err, res);
 			vTaskDelay(1000 / portTICK_PERIOD_MS);
-			continue;
+            goto done;
 		}
 
 		/* Code to print the resolved IP.
@@ -83,7 +86,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... Failed to allocate socket.");
 			freeaddrinfo(res);
 			vTaskDelay(1000 / portTICK_PERIOD_MS);
-			continue;
+            goto done;
 		}
 		ESP_LOGI(TAG, "... allocated socket");
 
@@ -92,7 +95,7 @@ void http_post_task(void *pvParameters)
 			close(s);
 			freeaddrinfo(res);
 			vTaskDelay(4000 / portTICK_PERIOD_MS);
-			continue;
+            goto done;
 		}
 
 		ESP_LOGI(TAG, "... connected");
@@ -133,7 +136,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... socket send failed");
 			close(s);
 			vTaskDelay(4000 / portTICK_PERIOD_MS);
-			continue;
+            goto done;
 		}
 		ESP_LOGI(TAG, "HEADER socket send success");
 
@@ -142,7 +145,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... socket send failed");
 			close(s);
 			vTaskDelay(4000 / portTICK_PERIOD_MS);
-			continue;
+            goto done;
 		}
 		ESP_LOGI(TAG, "BODY socket send success");
 
@@ -150,6 +153,9 @@ void http_post_task(void *pvParameters)
 		uint8_t dataBuffer[128];
 		if (f == NULL) {
 			ESP_LOGE(TAG, "Failed to open file for reading");
+			close(s);
+			vTaskDelay(4000 / portTICK_PERIOD_MS);
+            goto done;
 		}
 		while(!feof(f)) {
 			int len = fread(dataBuffer, 1, sizeof(dataBuffer), f);
@@ -157,7 +163,8 @@ void http_post_task(void *pvParameters)
 				ESP_LOGE(TAG, "... socket send failed");
 				close(s);
 				vTaskDelay(4000 / portTICK_PERIOD_MS);
-				continue;
+                fclose(f);
+				goto done;
 			}
 		}
 		fclose(f);
@@ -167,7 +174,7 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... socket send failed");
 			close(s);
 			vTaskDelay(4000 / portTICK_PERIOD_MS);
-			continue;
+			goto done;
 		}
 		ESP_LOGI(TAG, "END socket send success");
 
@@ -179,14 +186,12 @@ void http_post_task(void *pvParameters)
 			ESP_LOGE(TAG, "... failed to set socket receiving timeout");
 			close(s);
 			vTaskDelay(4000 / portTICK_PERIOD_MS);
-			continue;
+			goto done;
 		}
 		ESP_LOGI(TAG, "... set socket receiving timeout success");
 
 		/* Read HTTP response */
 		int readed;
-		RESPONSE_t responseBuf;
-		bzero(responseBuf.response, sizeof(responseBuf.response));
 		do {
 			bzero(recv_buf, sizeof(recv_buf));
 			ESP_LOGD(TAG, "Start read now=%"PRIu32, xTaskGetTickCount());
@@ -203,13 +208,13 @@ void http_post_task(void *pvParameters)
 		printf("\n");
 #endif
 
+		ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d.", readed, errno);
+		close(s);
+done:
 		/* send HTTP response */
 		if (xQueueSend(xQueueResponse, &responseBuf, 10) != pdPASS) {
 			ESP_LOGE(TAG, "xQueueSend fail");
 		}
-
-		ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d.", readed, errno);
-		close(s);
 
 	}
 }
