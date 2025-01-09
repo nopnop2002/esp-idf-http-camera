@@ -58,7 +58,7 @@ For AiThinker ESP32-CAM, Change GPIO0 to open and press the RESET button.
 ## Configuration
 Set the following items using menuconfig.
 
-![config-main](https://user-images.githubusercontent.com/6020549/66692052-c17e9b80-ecd5-11e9-8316-075350ceb2e9.jpg)
+![config-main](https://github.com/user-attachments/assets/3bdb6876-d47c-4396-88d1-395ffaeda2cc)
 ![config-app](https://user-images.githubusercontent.com/6020549/200204471-35b658fc-40b7-47aa-b0ba-86979049eba4.jpg)
 
 ### Wifi Setting
