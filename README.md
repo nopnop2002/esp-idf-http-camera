@@ -153,17 +153,25 @@ You can choose one of the following shutter methods
 	![config-shutter-2](https://user-images.githubusercontent.com/6020549/99897437-d2714d00-2cdc-11eb-8e59-c8bf4ef25d62.jpg)
 
 - Shutter is TCP Socket   
+	ESP32 acts as a TCP server and listens for requests from TCP clients.   
 	You can use tcp_send.py as shutter.   
 	`python3 ./tcp_send.py`
-	![config-shutter-3](https://user-images.githubusercontent.com/6020549/99890070-dc745b00-2c9e-11eb-9ae8-45ac11db5db5.jpg)
+	![Image](https://github.com/user-attachments/assets/4c301018-2f8c-4644-be3f-417222fb1842)
 
 - Shutter is UDP Socket   
+	ESP32 acts as a UDP listener and listens for requests from UDP clients.   
+	You can use this command as shutter.   
+	`echo -n "take" | socat - UDP-DATAGRAM:255.255.255.255:49876,broadcast`   
 	You can use udp_send.py as shutter.   
 	Requires netifaces.   
-	`python3 ./udp_send.py`
-	![config-shutter-4](https://user-images.githubusercontent.com/6020549/99889941-658a9280-2c9d-11eb-8bc7-06f2b67af3cb.jpg)
+	`python3 ./udp_send.py`   
+	![Image](https://github.com/user-attachments/assets/3dcd72be-d0ef-4bd9-9273-f420ca88f11b)   
+	You can use these devices as shutters.   
+	![Image](https://github.com/user-attachments/assets/cc97da4e-6c06-4604-8362-f81c6fb6eb58)   
+	Click [here](https://github.com/nopnop2002/esp-idf-selfie-trigger) for details.   
 
 - Shutter is HTTP Request   
+	ESP32 acts as a WEB server and listens for requests from HTTP clients.   
 	You can use this command as shutter.   
 	`curl "http://esp32-camera.local:8080/take/picture"`
 	![config-shutter-5](https://user-images.githubusercontent.com/6020549/193444800-ed7ac318-307d-4c12-baec-9b32b98df77c.jpg)
