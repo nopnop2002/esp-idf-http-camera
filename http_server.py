@@ -60,9 +60,10 @@ class MyHandler(server.BaseHTTPRequestHandler):
 		while True:
 			time.sleep(1)
 			if queue02.empty():
-				print("thread end waiting..")
+				print("thread end waiting. ESC to end.")
 				pass
 			else:
+				queue02.get()
 				break
 		print("thread end")
 

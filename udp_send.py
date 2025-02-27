@@ -3,8 +3,9 @@
 #
 # Requirement library
 # python3 -m pip install -U netifaces
-
-from socket import *
+#
+import argparse
+import socket
 import netifaces
 
 # Get IP address
@@ -18,20 +19,22 @@ for iface_name in netifaces.interfaces():
 	if (addr != "127.0.0.1"):
 		myIp = addr
 
-print("myIp={}".format(myIp))
-myIpList = myIp.split('.')
-print("myIpList={}".format(myIpList))
+if __name__=='__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--port', type=int, help='tcp port', default=49876)
+	args = parser.parse_args()
+	print("args.port={}".format(args.port))
 
-HOST = ''
-PORT = 49876
-#ADDRESS = "192.168.10.255" # for Broadcast
-ADDRESS = "{}.{}.{}.255".format(myIpList[0], myIpList[1], myIpList[2])
-print("ADDRESS={}".format(ADDRESS))
+	print("myIp={}".format(myIp))
+	myIpList = myIp.split('.')
+	print("myIpList={}".format(myIpList))
 
-s = socket(AF_INET, SOCK_DGRAM)
-s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
-s.bind((HOST, PORT))
+	#address = "192.168.10.255" # for Broadcast
+	address = "{}.{}.{}.255".format(myIpList[0], myIpList[1], myIpList[2])
+	print("address={}".format(address))
 
-s.sendto(b'take picture', (ADDRESS, PORT))
-
-s.close()
+	client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+	client.bind(('', args.port))
+	client.sendto(b'take picture', (address, args.port))
+	client.close()

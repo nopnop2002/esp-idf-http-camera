@@ -1,18 +1,21 @@
 #!/usr/bin/python
 #-*- encoding: utf-8 -*-
+import argparse
 import socket
 
-host = "esp32-camera.local" # esp32 hostname
-port = 49876
+if __name__=='__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--host', help='tcp host', default="esp32-camera.local")
+	parser.add_argument('--port', type=int, help='tcp port', default=49876)
+	args = parser.parse_args()
+	print("args.host={}".format(args.host))
+	print("args.port={}".format(args.port))
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-client.connect((host, port))
-
-client.send(b'take picture')
-
-response = client.recv(1024)
-
-client.close()
-
-print(response)
+	client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	client.connect((args.host, args.port))
+	client.send(b'take picture')
+	response = client.recv(1024)
+	client.close()
+	if (type(response) is bytes):
+		response=response.decode('utf-8')
+	print(response)
