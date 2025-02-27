@@ -19,8 +19,8 @@ You can use a server using tornado/flask or a simple server.
 	python3 -m pip install -U wheel
 	python3 -m pip install opencv-python
 
-	python3 ./server.py --help
-	usage: server.py [-h] [--port PORT]
+	python3 ./http_server.py --help
+	usage: http_server.py [-h] [--port PORT]
 
 	options:
 	  -h, --help   show this help message and exit
