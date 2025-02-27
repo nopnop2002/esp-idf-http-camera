@@ -8,7 +8,6 @@
 #include "esp_log.h"
 #include "cmd.h"
 
-#if CONFIG_SHUTTER_ENTER
 extern QueueHandle_t xQueueCmd;
 
 static const char *TAG = "KEYBOARD";
@@ -39,5 +38,3 @@ void keyin(void *pvParameters)
 	/* Never reach */
 	vTaskDelete( NULL );
 }
-#endif
-

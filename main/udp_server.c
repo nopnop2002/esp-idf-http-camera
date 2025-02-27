@@ -23,8 +23,6 @@
 
 #include "cmd.h"
 
-#if CONFIG_SHUTTER_UDP
-
 extern QueueHandle_t xQueueCmd;
 
 static const char *TAG = "UDP";
@@ -89,4 +87,3 @@ void udp_server(void *pvParameters)
 	LWIP_ASSERT("ret == 0", ret == 0);
 	vTaskDelete( NULL );
 }
-#endif
