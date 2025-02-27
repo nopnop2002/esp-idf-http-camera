@@ -5,12 +5,30 @@ This project use [ESP32 Camera Driver](https://components.espressif.com/componen
 ![slide-0001](https://user-images.githubusercontent.com/6020549/119491922-7a092e00-bd99-11eb-8260-a52e9f5bddc2.jpg)
 ![slide-0002](https://user-images.githubusercontent.com/6020549/119491927-7bd2f180-bd99-11eb-88aa-a4c4c9ab6c84.jpg)
 
-# Server Side
-Download the server from [here](https://github.com/nopnop2002/multipart-upload-server).
+# HTTP Server
+You can use a server using tornado/flask and a simple server.   
 
-![http-server](https://user-images.githubusercontent.com/6020549/119244044-79a94100-bba7-11eb-8b03-e25e78fc310a.jpg)
-![http-server-2](https://user-images.githubusercontent.com/6020549/119245826-2808b280-bbb7-11eb-81f1-87bf00f88e41.jpg)
-![http-server-3](https://user-images.githubusercontent.com/6020549/119248815-a886dd80-bbce-11eb-8974-68f26d08ed3b.jpg)
+- tornado/flask server
+	Download the tornado/flask server from [here](https://github.com/nopnop2002/multipart-upload-server).
+	![http-server](https://user-images.githubusercontent.com/6020549/119244044-79a94100-bba7-11eb-8b03-e25e78fc310a.jpg)
+	![http-server-2](https://user-images.githubusercontent.com/6020549/119245826-2808b280-bbb7-11eb-81f1-87bf00f88e41.jpg)
+	![http-server-3](https://user-images.githubusercontent.com/6020549/119248815-a886dd80-bbce-11eb-8974-68f26d08ed3b.jpg)
+
+- simple server
+	```
+	python3 -m pip install -U wheel
+	python3 -m pip install opencv-python
+
+	python3 ./server.py --help
+	usage: server.py [-h] [--port PORT]
+
+	options:
+	  -h, --help   show this help message and exit
+	  --port PORT  mqtt port
+	```
+
+	__Close the image window with the ESC key.__   
+	![opencv](https://github.com/nopnop2002/esp-idf-mqtt-camera/assets/6020549/516b2f25-d285-47d6-ae56-ee1cceed5c58)
 
 ---
 
