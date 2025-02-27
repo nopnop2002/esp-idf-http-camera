@@ -6,7 +6,7 @@ This project use [ESP32 Camera Driver](https://components.espressif.com/componen
 ![slide-0002](https://user-images.githubusercontent.com/6020549/119491927-7bd2f180-bd99-11eb-88aa-a4c4c9ab6c84.jpg)
 
 # HTTP Server
-You can use a server using tornado/flask and a simple server.   
+You can use a server using tornado/flask or a simple server.   
 
 - tornado/flask server
 	Download the tornado/flask server from [here](https://github.com/nopnop2002/multipart-upload-server).
