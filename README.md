@@ -81,17 +81,15 @@ You can use static IP.
 You can choose the file name on the HTTP server side from the following.   
 - Always the same file name   
 - File name based on date and time   
-When you choose date and time file name, you will need an NTP server.   
-The file name will be YYYYMMDD-hhmmss.jpg.   
-
-![config-filename-1](https://user-images.githubusercontent.com/6020549/119243498-5203aa00-bba2-11eb-87d5-053636dbb85a.jpg)
-![config-filename-2](https://user-images.githubusercontent.com/6020549/119243499-5203aa00-bba2-11eb-8c0f-6bb42d125d64.jpg)
+	When you choose date and time file name, you will need an NTP server.   
+	The file name will be YYYYMMDD-hhmmss.jpg.   
+	![config-filename-1](https://user-images.githubusercontent.com/6020549/119243498-5203aa00-bba2-11eb-87d5-053636dbb85a.jpg)
+	![config-filename-2](https://user-images.githubusercontent.com/6020549/119243499-5203aa00-bba2-11eb-8c0f-6bb42d125d64.jpg)
 
 - Add FrameSize to Remote file Name   
-When this is enabled, FrameSize is added to remote file name like this.   
-`20210520-165740_800x600.jpg`   
-
-![config-filename-3](https://user-images.githubusercontent.com/6020549/119243501-529c4080-bba2-11eb-8ba4-85cdd764b0fc.jpg)
+	When this is enabled, FrameSize is added to remote file name like this.   
+	`20210520-165740_800x600.jpg`   
+	![config-filename-3](https://user-images.githubusercontent.com/6020549/119243501-529c4080-bba2-11eb-8ba4-85cdd764b0fc.jpg)
 
 
 ### Select Board
@@ -108,53 +106,49 @@ Large frame sizes take longer to take a picture.
 You can choose one of the following shutter methods
 
 - Shutter is the Enter key on the keyboard   
- For operation check.   
- When using the USB port provided by the USB Serial/JTAG Controller Console, you need to enable the following line in sdkconfig.
- ```
- CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
- ```
-
-![config-shutter-1](https://user-images.githubusercontent.com/6020549/99890068-db432e00-2c9e-11eb-84e2-4e6c5f05fb7a.jpg)
+	For operation check.   
+	When using the USB port provided by the USB Serial/JTAG Controller Console, you need to enable the following line in sdkconfig.
+	```
+	CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+	```
+	![config-shutter-1](https://user-images.githubusercontent.com/6020549/99890068-db432e00-2c9e-11eb-84e2-4e6c5f05fb7a.jpg)
 
 
 - Shutter is a GPIO toggle   
 
-  - Initial Sate is PULLDOWN   
-The shutter is prepared when it is turned from OFF to ON, and a picture is taken when it is turned from ON to OFF.   
+	- Initial Sate is PULLDOWN   
+	The shutter is prepared when it is turned from OFF to ON, and a picture is taken when it is turned from ON to OFF.   
 
-  - Initial Sate is PULLUP   
-The shutter is prepared when it is turned from ON to OFF, and a picture is taken when it is turned from OFF to ON.   
+	- Initial Sate is PULLUP   
+	The shutter is prepared when it is turned from ON to OFF, and a picture is taken when it is turned from OFF to ON.   
 
-I confirmed that the following GPIO can be used.   
+	I confirmed that the following GPIO can be used.   
 
-|GPIO|PullDown|PullUp|
-|:-:|:-:|:-:|
-|GPIO12|OK|NG|
-|GPIO13|OK|OK|
-|GPIO14|OK|OK|
-|GPIO15|OK|OK|
-|GPIO16|NG|NG|
+	|GPIO|PullDown|PullUp|
+	|:-:|:-:|:-:|
+	|GPIO12|OK|NG|
+	|GPIO13|OK|OK|
+	|GPIO14|OK|OK|
+	|GPIO15|OK|OK|
+	|GPIO16|NG|NG|
 
-![config-shutter-2](https://user-images.githubusercontent.com/6020549/99897437-d2714d00-2cdc-11eb-8e59-c8bf4ef25d62.jpg)
+	![config-shutter-2](https://user-images.githubusercontent.com/6020549/99897437-d2714d00-2cdc-11eb-8e59-c8bf4ef25d62.jpg)
 
 - Shutter is TCP Socket   
-You can use tcp_send.py as shutter.   
-`python3 ./tcp_send.py`
-
-![config-shutter-3](https://user-images.githubusercontent.com/6020549/99890070-dc745b00-2c9e-11eb-9ae8-45ac11db5db5.jpg)
+	You can use tcp_send.py as shutter.   
+	`python3 ./tcp_send.py`
+	![config-shutter-3](https://user-images.githubusercontent.com/6020549/99890070-dc745b00-2c9e-11eb-9ae8-45ac11db5db5.jpg)
 
 - Shutter is UDP Socket   
-You can use udp_send.py as shutter.   
-Requires netifaces.   
-`python3 ./udp_send.py`
-
-![config-shutter-4](https://user-images.githubusercontent.com/6020549/99889941-658a9280-2c9d-11eb-8bc7-06f2b67af3cb.jpg)
+	You can use udp_send.py as shutter.   
+	Requires netifaces.   
+	`python3 ./udp_send.py`
+	![config-shutter-4](https://user-images.githubusercontent.com/6020549/99889941-658a9280-2c9d-11eb-8bc7-06f2b67af3cb.jpg)
 
 - Shutter is HTTP Request   
-You can use this command as shutter.   
-`curl "http://esp32-camera.local:8080/take/picture"`
-
-![config-shutter-5](https://user-images.githubusercontent.com/6020549/193444800-ed7ac318-307d-4c12-baec-9b32b98df77c.jpg)
+	You can use this command as shutter.   
+	`curl "http://esp32-camera.local:8080/take/picture"`
+	![config-shutter-5](https://user-images.githubusercontent.com/6020549/193444800-ed7ac318-307d-4c12-baec-9b32b98df77c.jpg)
 
 
 ### Flash Light   
