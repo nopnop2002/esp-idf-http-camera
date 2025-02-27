@@ -80,10 +80,10 @@ You can use static IP.
 
 You can choose the file name on the HTTP server side from the following.   
 - Always the same file name   
+	![config-filename-1](https://user-images.githubusercontent.com/6020549/119243498-5203aa00-bba2-11eb-87d5-053636dbb85a.jpg)
 - File name based on date and time   
 	When you choose date and time file name, you will need an NTP server.   
 	The file name will be YYYYMMDD-hhmmss.jpg.   
-	![config-filename-1](https://user-images.githubusercontent.com/6020549/119243498-5203aa00-bba2-11eb-87d5-053636dbb85a.jpg)
 	![config-filename-2](https://user-images.githubusercontent.com/6020549/119243499-5203aa00-bba2-11eb-8c0f-6bb42d125d64.jpg)
 
 - Add FrameSize to Remote file Name   
