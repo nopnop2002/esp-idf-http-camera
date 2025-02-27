@@ -1,6 +1,6 @@
 # esp-idf-http-camera
 Take a picture and Publish it via HTTP.   
-This project use [ESP32 Camera Driver](https://components.espressif.com/components/espressif/esp32-camera).   
+This project use [this](https://components.espressif.com/components/espressif/esp32-camera) Camera Driver.   
 
 ![slide-0001](https://user-images.githubusercontent.com/6020549/119491922-7a092e00-bd99-11eb-8260-a52e9f5bddc2.jpg)
 ![slide-0002](https://user-images.githubusercontent.com/6020549/119491927-7bd2f180-bd99-11eb-88aa-a4c4c9ab6c84.jpg)
