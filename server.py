@@ -68,7 +68,7 @@ class MyHandler(server.BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--port', type=int, help='mqtt port', default=8080)
+	parser.add_argument('--port', type=int, help='http port', default=8080)
 	args = parser.parse_args() 
 	print("args.port={}".format(args.port))
 

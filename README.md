@@ -8,7 +8,7 @@ This project use [ESP32 Camera Driver](https://components.espressif.com/componen
 # HTTP Server
 You can use a server using tornado/flask or a simple server.   
 
-- tornado/flask server
+- tornado/flask server   
 	Download the tornado/flask server from [here](https://github.com/nopnop2002/multipart-upload-server).
 	![http-server](https://user-images.githubusercontent.com/6020549/119244044-79a94100-bba7-11eb-8b03-e25e78fc310a.jpg)
 	![http-server-2](https://user-images.githubusercontent.com/6020549/119245826-2808b280-bbb7-11eb-81f1-87bf00f88e41.jpg)
@@ -24,7 +24,7 @@ You can use a server using tornado/flask or a simple server.
 
 	options:
 	  -h, --help   show this help message and exit
-	  --port PORT  mqtt port
+	  --port PORT  http port
 	```
 
 	__Close the image window with the ESC key.__   
