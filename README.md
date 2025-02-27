@@ -171,7 +171,7 @@ You can choose one of the following shutter methods
 	Click [here](https://github.com/nopnop2002/esp-idf-selfie-trigger) for details.   
 
 - Shutter is HTTP Request   
-	ESP32 acts as a WEB server and listens for requests from HTTP clients.   
+	ESP32 acts as a HTTP server and listens for requests from HTTP clients.   
 	You can use this command as shutter.   
 	`curl "http://esp32-camera.local:8080/take/picture"`
 	![config-shutter-5](https://user-images.githubusercontent.com/6020549/193444800-ed7ac318-307d-4c12-baec-9b32b98df77c.jpg)
