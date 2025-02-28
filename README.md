@@ -31,6 +31,7 @@ You can use a server using tornado/flask or a simple server.
 	__Close the image window with the ESC key.__   
 	![opencv](https://github.com/nopnop2002/esp-idf-mqtt-camera/assets/6020549/516b2f25-d285-47d6-ae56-ee1cceed5c58)   
 	This script works not only on Linux but also on Windows 10.   
+	I used Python 3.9.13 for Windows.   
 	![Image](https://github.com/user-attachments/assets/b1d4f037-3be3-4b02-bea7-6856aa2e1f8e)
 
 ---
