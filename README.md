@@ -30,6 +30,8 @@ You can use a server using tornado/flask or a simple server.
 	New requests are queued while the image is displayed.   
 	__Close the image window with the ESC key.__   
 	![opencv](https://github.com/nopnop2002/esp-idf-mqtt-camera/assets/6020549/516b2f25-d285-47d6-ae56-ee1cceed5c58)
+	This script also works on Windows10.   
+	![Image](https://github.com/user-attachments/assets/0c749848-8171-4137-8111-1f2fddb1415c)
 
 ---
 
