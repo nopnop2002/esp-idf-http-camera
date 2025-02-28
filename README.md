@@ -78,8 +78,6 @@ idf.py flash monitor
 For AiThinker ESP32-CAM, Change GPIO0 to open and press the RESET button.
 
 ## Configuration
-Set the following items using menuconfig.
-
 ![config-main](https://github.com/user-attachments/assets/3bdb6876-d47c-4396-88d1-395ffaeda2cc)
 ![config-app](https://user-images.githubusercontent.com/6020549/200204471-35b658fc-40b7-47aa-b0ba-86979049eba4.jpg)
 
