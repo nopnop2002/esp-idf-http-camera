@@ -96,8 +96,7 @@ You can use mDNS hostnames instead of IP addresses.
 ![config-http](https://user-images.githubusercontent.com/6020549/183002951-42e79610-eccf-4c8b-a03f-b6c5a9679bc2.jpg)
 
 ### Attached File Name Setting
-
-You can choose the file name on the HTTP server side from the following.   
+You can select the file name to send to the HTTP server from the following.   
 - Always the same file name   
 	![config-filename-1](https://user-images.githubusercontent.com/6020549/119243498-5203aa00-bba2-11eb-87d5-053636dbb85a.jpg)
 - File name based on date and time   
