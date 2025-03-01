@@ -18,17 +18,19 @@ You can use a server using tornado/flask or a simple server.
 	```
 	python3 -m pip install -U wheel
 	python3 -m pip install opencv-python
-
+	git clone https://github.com/nopnop2002/esp-idf-http-camera
 	python3 ./http_server.py --help
-	usage: http_server.py [-h] [--port PORT]
+	usage: http_server.py [-h] [--port PORT] [--timeout TIMEOUT]
 
 	options:
-	  -h, --help   show this help message and exit
-	  --port PORT  http port
+	  -h, --help         show this help message and exit
+	  --port PORT        http port
+	  --timeout TIMEOUT  wait time for keyboard input[sec]
 	```
-
+	When timeout is specified, display the image for the specified number of seconds.   
+	When timeout is not specified, the image will be displayed until the ESC key is pressed.   
 	New requests are queued while the image is displayed.   
-	__Close the image window with the ESC key.__   
+	__Close the image window with the ESC key. Do not use the close button.__   
 	![opencv](https://github.com/nopnop2002/esp-idf-mqtt-camera/assets/6020549/516b2f25-d285-47d6-ae56-ee1cceed5c58)   
 	This script works not only on Linux but also on Windows 10.   
 	I used Python 3.9.13 for Windows.   

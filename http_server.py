@@ -22,10 +22,11 @@ def threadView(q1, q2):
 			#print("thread waiting..")
 		else:
 			localVal = q1.get()
-			print("thread q1.get() localVal={}".format(localVal))
+			print("thread q1.get() localVal={} timeout={}".format(localVal, args.timeout))
 			image = cv2.imread(imageFileName)
 			cv2.imshow('image', image)
-			cv2.waitKey(0)
+			#cv2.waitKey(0)
+			cv2.waitKey(args.timeout*1000)
 			cv2.destroyWindow('image')
 			print("thread q2.put() localVal={}".format(localVal))
 			q2.put(localVal)
@@ -70,8 +71,10 @@ class MyHandler(server.BaseHTTPRequestHandler):
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--port', type=int, help='http port', default=8080)
+	parser.add_argument('--timeout', type=int, help='wait time for keyboard input[sec]', default=0)
 	args = parser.parse_args() 
 	print("args.port={}".format(args.port))
+	print("args.timeout={}".format(args.timeout))
 
 	thread = threading.Thread(target=threadView, args=(queue01,queue02,) ,daemon = True)
 	thread.start()
