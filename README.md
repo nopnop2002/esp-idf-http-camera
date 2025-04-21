@@ -204,7 +204,7 @@ ESP32-CAM by AI-Thinker have flash light on GPIO4.
 ![config-flash](https://user-images.githubusercontent.com/6020549/99890190-0b3f0100-2ca0-11eb-94c6-ba7e2cfe1727.jpg)
 
 ## PSRAM   
-When you use ESP32S3-WROVER CAM, you need to set the PSRAM type.   
+When you use ESP32S3-WROVER CAM, you need to change the PSRAM type.   
 
 ![config-psram](https://github.com/nopnop2002/esp-idf-websocket-camera/assets/6020549/ba04f088-c628-46ac-bc5b-2968032753e0)
 
