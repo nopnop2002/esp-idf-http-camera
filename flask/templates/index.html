@@ -1,0 +1,126 @@
+{% extends "_layout.html" %}
+{% block content %}
+
+<div class="container" style="margin-top: 10px">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+
+          <form action="/select" method="POST">
+          <div class="card-header">
+            Your camera list
+          </div>
+          <div class="card-block">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th> Select </th>
+                  <th> IP </th>
+                  <th> MAC </th>
+                  <th> Board </th>
+                  <th> Frame </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for node in nodes %}
+                  <tr>
+                    <td><input type="checkbox" name="selected" value={{ node[0] }} /></td>
+                    <td>{{ node[0] }}</td>
+                    <td>{{ node[1] }}</td>
+                    <td>{{ node[2] }}</td>
+                    <td>{{ node[3] }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          {% if meta.node_list_count != 0 %}
+          <div class="card-header">
+            Take picture from selected camera
+          </div>
+          <div class="card-block">
+            <input class="btn btn-primary btn-sm" type="submit" value="Take Picture">
+            <label>
+              exif
+              <input type="text" name="exif">
+            </label>
+          </div>
+          {% endif %}
+          </form>
+
+          <div class="card-header">
+            Directory listing for "{{meta.current_directory}}"
+          </div>
+          <div class="card-block">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th> Name </th>
+                  <th> Size </th>
+                  <th> MIME </th>
+                  <th> Download </th>
+                  <th> View </th>
+                  <th> View(Rotate) </th>
+                  <th> Exif </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for folder in folders %}
+                  <tr>
+                    <td>
+                      <i class="fa fa-file-o"></i> {{ folder.name }}
+                    </td>
+                    <td>
+                      {{ folder.size }}
+                    </td>                    
+                    <td>
+                      <span class="label label-primary">{{ folder.mime }}</span>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% for file in files %}
+                  <tr>
+                    <td>
+                      <i class="fa fa-file-o"></i> {{ file.name }}
+                    </td>
+                    <td>
+                      {{ file.size }}
+                    </td>
+                    <td>
+                      <span class="label label-primary">{{ file.mime }}</span>
+                    </td>
+                    <td>
+                      <a href="download?filename={{ file.fullname }}" class="label label-success"><i class="fa fa-download"></i> Download</a>
+                    </td>
+                    <td>
+                    {% if file.visible  == True %}
+                      <a href="imageview?filename={{ file.fullname }}" class="label label-success"><i class="fa fa-picture-o"></i> View</a>
+                    {% else %}
+                      <br>
+                    {% endif %}
+                    </td>
+                    <td>
+                    {% if file.visible  == True %}
+                      <a href="imageview?filename={{ file.fullname }}&rotate=90" class="label label-success"><i class="fa fa-picture-o"></i> View</a>
+                    {% else %}
+                      <br>
+                    {% endif %}
+                    </td>
+                    <td>
+                      {{ file.exif }}
+                    </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -20,6 +20,7 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "freertos/event_groups.h"
+#include "freertos/timers.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
@@ -339,7 +340,20 @@ static esp_err_t obtain_time(void)
 }
 #endif
 
-void http_post_task(void *pvParameters);
+static void post_system_info_timercb(TimerHandle_t timer)
+{
+	REQUEST_t requestBuf;
+	requestBuf.command = CMD_INFO;
+	requestBuf.logLevel = ESP_LOG_WARN;
+	//requestBuf.logLevel = ESP_LOG_INFO;
+	requestBuf.taskHandle = NULL;
+	// HTTP POST
+	if (xQueueSendFromISR(xQueueRequest, &requestBuf, NULL) != pdPASS) {
+		ESP_LOGE(TAG, "xQueueSendFromISR fail");
+	}
+}
+
+void http_client(void *pvParameters);
 
 #if CONFIG_SHUTTER_ENTER
 void keyin(void *pvParameters);
@@ -413,13 +427,13 @@ void app_main(void)
 	/* Create Queue */
 	xQueueCmd = xQueueCreate( 1, sizeof(CMD_t) );
 	configASSERT( xQueueCmd );
-	xQueueRequest = xQueueCreate( 1, sizeof(REQUEST_t) );
+	xQueueRequest = xQueueCreate( 5, sizeof(REQUEST_t) );
 	configASSERT( xQueueRequest );
 	xQueueHttp = xQueueCreate( 10, sizeof(HTTP_t) );
 	configASSERT( xQueueHttp );
 
 	/* Create HTTP Client Task */
-	xTaskCreate(&http_post_task, "POST", 4096, NULL, 5, NULL);
+	xTaskCreate(&http_client, "CLIENT", 1024*4, NULL, 5, NULL);
 
 	/* Create Shutter Task */
 #if CONFIG_SHUTTER_ENTER
@@ -440,10 +454,6 @@ void app_main(void)
 #if CONFIG_SHUTTER_UDP
 #define SHUTTER "UDP Input"
 	xTaskCreate(udp_server, "UDP", 1024*4, NULL, 2, NULL);
-#endif
-
-#if CONFIG_SHUTTER_HTTP
-#define SHUTTER "HTTP Request"
 #endif
 
 	/* Get the local IP address */
@@ -482,9 +492,9 @@ void app_main(void)
 		while(1) { vTaskDelay(1); }
 	}
 
-
 	REQUEST_t requestBuf;
-	requestBuf.command = CMD_SEND;
+	requestBuf.command = CMD_UPLOAD;
+	requestBuf.logLevel = ESP_LOG_INFO;
 	requestBuf.taskHandle = xTaskGetCurrentTaskHandle();
 	//sprintf(requestBuf.localFileName, "%s/picture.jpg", base_path);
 	snprintf(requestBuf.localFileName, sizeof(requestBuf.localFileName)-1, "%s/picture.jpg", base_path);
@@ -505,6 +515,10 @@ void app_main(void)
 #endif
 	ESP_LOGI(TAG, "remoteFileName=%s",requestBuf.remoteFileName);
 #endif
+
+	// Start timer
+	TimerHandle_t timer = xTimerCreate("post_system_info", 10000 / portTICK_PERIOD_MS, true, NULL, post_system_info_timercb);
+	xTimerStart(timer, 0);
 
 	HTTP_t httpBuf;
 	httpBuf.taskHandle = xTaskGetCurrentTaskHandle();
@@ -576,7 +590,7 @@ void app_main(void)
 		gpio_set_level(CONFIG_GPIO_FLASH, 0);
 #endif
 
-		// Send HTTP Request
+		// HTTP POST
 		if (xQueueSend(xQueueRequest, &requestBuf, 10) != pdPASS) {
 			ESP_LOGE(TAG, "xQueueSend fail");
 		} else {

@@ -1,10 +1,11 @@
-/* Simple HTTP Server Example
+/*
+	Simple HTTP Server Example
 
-	 This example code is in the Public Domain (or CC0 licensed, at your option.)
+	This example code is in the Public Domain (or CC0 licensed, at your option.)
 
-	 Unless required by applicable law or agreed to in writing, this
-	 software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	 CONDITIONS OF ANY KIND, either express or implied.
+	Unless required by applicable law or agreed to in writing, this
+	software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	CONDITIONS OF ANY KIND, either express or implied.
 */
 
 #include <stdio.h>
@@ -21,25 +22,12 @@
 
 #include "cmd.h"
 
-static const char *TAG = "HTTP";
+static const char *TAG = "SERVER";
 
 extern QueueHandle_t xQueueCmd;
 extern QueueHandle_t xQueueHttp;
 
 char * localFileName = NULL;
-
-#if 0
-static void SPIFFS_Directory(char * path) {
-	DIR* dir = opendir(path);
-	assert(dir != NULL);
-	while (true) {
-		struct dirent*pe = readdir(dir);
-		if (!pe) break;
-		ESP_LOGI(__FUNCTION__,"d_name=%s d_ino=%d d_type=%x", pe->d_name,pe->d_ino, pe->d_type);
-	}
-	closedir(dir);
-}
-#endif
 
 // Calculate the size after conversion to base64
 // http://akabanessa.blog73.fc2.com/blog-entry-83.html
@@ -89,11 +77,12 @@ esp_err_t Image2Base64(char * filename, size_t fsize, unsigned char * base64_buf
 	return ret;
 }
 
-/* root get handler */
+/* Handler for root get */
 static esp_err_t root_get_handler(httpd_req_t *req)
 {
 	ESP_LOGI(TAG, "root_get_handler");
 	if (localFileName == NULL) {
+		ESP_LOGW(TAG, "localFileName is NULL");
 		httpd_resp_sendstr_chunk(req, NULL);
 		return ESP_OK;
 	}
@@ -143,28 +132,24 @@ static esp_err_t root_get_handler(httpd_req_t *req)
 	return ESP_OK;
 }
 
-#if CONFIG_SHUTTER_HTTP
-/* shutter handler */
-static esp_err_t shutter_handler(httpd_req_t *req)
+/* Handler for root post */
+// curl -X POST http://192.168.10.157:8080/post
+static esp_err_t root_post_handler(httpd_req_t *req)
 {
-    CMD_t cmdBuf;
-    cmdBuf.taskHandle = xTaskGetCurrentTaskHandle();
-    cmdBuf.command = CMD_TAKE;
-    if (xQueueSend(xQueueCmd, &cmdBuf, 10) != pdPASS) {
-        ESP_LOGE(TAG, "xQueueSend fail");
-    } else {
-        ESP_LOGI(TAG, "xQueueSend success");
-    }
+	ESP_LOGI(TAG, "root_post_handler req->uri=[%s]", req->uri);
+	CMD_t cmdBuf;
+	cmdBuf.taskHandle = xTaskGetCurrentTaskHandle();
+	cmdBuf.command = CMD_TAKE;
+	if (xQueueSendFromISR(xQueueCmd, &cmdBuf, NULL) != pdPASS) {
+		ESP_LOGE(TAG, "xQueueSendFromISR fail");
+	}
 
-    /* Send response with custom headers and body set as the
-     * string passed in user context*/
-    const char* resp_str = (const char*) req->user_ctx;
-    httpd_resp_send(req, resp_str, HTTPD_RESP_USE_STRLEN);
-
-    return ESP_OK;
+	/* Send response with custom headers and body set as the
+	 * string passed in user context*/
+	const char* resp_str = (const char*) req->user_ctx;
+	httpd_resp_send(req, resp_str, HTTPD_RESP_USE_STRLEN);
+	return ESP_OK;
 }
-#endif
-
 
 /* favicon get handler */
 static esp_err_t favicon_get_handler(httpd_req_t *req)
@@ -185,30 +170,28 @@ esp_err_t start_server(int port)
 	config.server_port = port;
 
 	// Start the httpd server
-	//ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
+	ESP_LOGD(TAG, "Starting server on port: '%d'", config.server_port);
 	if (httpd_start(&server, &config) != ESP_OK) {
 		ESP_LOGE(TAG, "Failed to start file server!");
 		return ESP_FAIL;
 	}
 
 	// Set URI handlers
-	httpd_uri_t _root_get_handler = {
+	httpd_uri_t _root_get = {
 		.uri		 = "/",
 		.method		 = HTTP_GET,
 		.handler	 = root_get_handler,
 		//.user_ctx  = "Hello World!"
 	};
-	httpd_register_uri_handler(server, &_root_get_handler);
+	httpd_register_uri_handler(server, &_root_get);
 
-#if CONFIG_SHUTTER_HTTP
-	httpd_uri_t _shutter_handler = {
-		.uri		 = CONFIG_SHUTTER_URL,
-		.method		 = HTTP_GET,
-		.handler	 = shutter_handler,
-		.user_ctx    = "{\'result\':\'OK\'}" 
+	httpd_uri_t _root_post = {
+		.uri		 = "/post",
+		.method		 = HTTP_POST,
+		.handler	 = root_post_handler,
+		.user_ctx	 = "{\'result\':\'OK\'}" 
 	};
-	httpd_register_uri_handler(server, &_shutter_handler);
-#endif
+	httpd_register_uri_handler(server, &_root_post);
 
 	httpd_uri_t _favicon_get_handler = {
 		.uri		 = "/favicon.ico",
@@ -220,8 +203,6 @@ esp_err_t start_server(int port)
 
 	return ESP_OK;
 }
-
-
 
 void http_task(void *pvParameters)
 {

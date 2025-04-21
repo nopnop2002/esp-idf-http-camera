@@ -57,23 +57,17 @@ menu "Application Configuration"
 
 	menu "HTTP Server Setting"
 
-		config WEB_SERVER
+		config SERVER_IP
 			string "HTTP Server"
 			default "myhttpserver.local"
 			help
 				The host name or IP address of the HTTP server to use.
 
-		config WEB_PORT
-			string "HTTP Port"
-			default "8080"
+		config SERVER_PORT
+			int "HTTP Server Port"
+			default 8080
 			help
 				HTTP server port to use.
-
-		config WEB_PATH
-			string "HTTP Url"
-			default "/upload_multipart"
-			help
-				HTTP Server url to use.
 
 	endmenu
 
@@ -177,8 +171,6 @@ menu "Application Configuration"
 				bool "Use TCP Socket"
 			config SHUTTER_UDP
 				bool "Use UDP Socket"
-			config SHUTTER_HTTP
-				bool "Use HTTP Request"
 
 		endchoice
 
@@ -226,14 +218,6 @@ menu "Application Configuration"
 			default 49876
 			help
 				Local port UDP server will listen on.
-
-		config SHUTTER_URL
-			string "URL for built-in WEB server"
-			depends on SHUTTER_HTTP
-			default "/take/picture"
-			help
-				URL for built-in WEB server.
-				Must start with /.
 
 	endmenu
 

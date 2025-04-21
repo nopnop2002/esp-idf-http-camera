@@ -1,4 +1,4 @@
-set(srcs "main.c" "http_post.c" "http_server.c")
+set(srcs "main.c" "http_client.c" "http_server.c")
 
 if (CONFIG_SHUTTER_ENTER)
 	list(APPEND srcs "keyboard.c")

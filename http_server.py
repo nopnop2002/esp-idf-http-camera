@@ -34,7 +34,13 @@ def threadView(q1, q2):
 
 class MyHandler(server.BaseHTTPRequestHandler):
 	def do_POST(self):
-		print('path = {}'.format(self.path))
+		self.send_response(200)
+		self.send_header('Content-Type', 'text/plain; charset=utf-8')
+		self.end_headers()
+		self.wfile.write(b'{"result": "post OK"}')
+
+		print('path=[{}]'.format(self.path))
+		if (self.path != "/upload_multipart"): return
 
 		# Get request
 		content_len  = int(self.headers.get("content-length"))

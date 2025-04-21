@@ -5,42 +5,6 @@ This project use [this](https://components.espressif.com/components/espressif/es
 ![slide-0001](https://user-images.githubusercontent.com/6020549/119491922-7a092e00-bd99-11eb-8260-a52e9f5bddc2.jpg)
 ![slide-0002](https://user-images.githubusercontent.com/6020549/119491927-7bd2f180-bd99-11eb-88aa-a4c4c9ab6c84.jpg)
 
-# HTTP Server
-You can use a server using tornado/flask or a simple server.   
-
-- tornado/flask server   
-	Download the tornado/flask server from [here](https://github.com/nopnop2002/multipart-upload-server).
-	![http-server](https://user-images.githubusercontent.com/6020549/119244044-79a94100-bba7-11eb-8b03-e25e78fc310a.jpg)
-	![http-server-2](https://user-images.githubusercontent.com/6020549/119245826-2808b280-bbb7-11eb-81f1-87bf00f88e41.jpg)
-	![http-server-3](https://user-images.githubusercontent.com/6020549/119248815-a886dd80-bbce-11eb-8974-68f26d08ed3b.jpg)
-
-- simple server
-	```
-	python3 -m pip install -U wheel
-	python3 -m pip install opencv-python
-	git clone https://github.com/nopnop2002/esp-idf-http-camera
-
-	python3 ./http_server.py --help
-	usage: http_server.py [-h] [--port PORT] [--timeout TIMEOUT]
-
-	options:
-	  -h, --help         show this help message and exit
-	  --port PORT        http port
-	  --timeout TIMEOUT  wait time for keyboard input[sec]
-	```
-	When timeout is specified, display the image for the specified number of seconds.   
-	When timeout is not specified, the image will be displayed until the ESC key is pressed.   
-	New requests are queued while the image is displayed.   
-	__Close the image window with the ESC key. Do not use the close button.__   
-	![opencv](https://github.com/nopnop2002/esp-idf-mqtt-camera/assets/6020549/516b2f25-d285-47d6-ae56-ee1cceed5c58)   
-	This script works not only on Linux but also on Windows 10.   
-	I used Python 3.9.13 for Windows.   
-	![Image](https://github.com/user-attachments/assets/b1d4f037-3be3-4b02-bea7-6856aa2e1f8e)
-
----
-
-# ESP32 Side
-
 # Hardware requirements
 ESP32 development board with OV2640 camera.   
 If you use other camera, edit sdkconfig.default.   
@@ -56,8 +20,66 @@ From the left:
 ESP-IDF V5.0 or later.   
 ESP-IDF V4.4 release branch reached EOL in July 2024.   
 
+# Start HTTP Server
+You can use a server using flask or a simple server.   
 
-## Installation
+## flask HTTP server   
+```
+sudo apt update
+sudo apt install python3-pip python3-setuptools python3-magic
+python3 -m pip install -U pip
+python3 -m pip install -U wheel
+python3 -m pip install -U Werkzeug
+python3 -m pip install -U pillow
+python3 -m pip install -U python-magic
+python3 -m pip install -U requests
+python3 -m pip install -U flask
+python3 -m pip install -U piexif
+git clone https://github.com/nopnop2002/esp-idf-http-camera
+cd esp-idf-http-camera/flask
+python3 main.py
+```
+
+Open your browser and enter the host address in the address bar.   
+![Image](https://github.com/user-attachments/assets/ff880a80-5f97-47fd-b160-0cf781cdb73d)
+
+When you start ESP32, a list of ESP32 will be displayed.   
+![Image](https://github.com/user-attachments/assets/ede70d8d-9012-4c61-aa82-85c690a0fe9b)
+
+Select ESP32 and then press the Take Picture button.   
+You can add Exif to JPEG.   
+![Image](https://github.com/user-attachments/assets/94faa033-bb23-4016-95d0-e47ae670f4df)
+
+ESP32 takes a photo and transmits it to the server.   
+You can see the photos.   
+![Image](https://github.com/user-attachments/assets/2bb21f79-68e1-42bb-bda1-311e71035d9f)
+![Image](https://github.com/user-attachments/assets/7cc8cd75-7414-4d25-900e-6635b4c48287)
+![Image](https://github.com/user-attachments/assets/5d2c99b2-beb5-4560-9e47-b01e92d5e08e)
+
+## Simple HTTP server
+```
+python3 -m pip install -U wheel
+python3 -m pip install opencv-python
+git clone https://github.com/nopnop2002/esp-idf-http-camera
+python3 ./http_server.py --help
+usage: http_server.py [-h] [--port PORT] [--timeout TIMEOUT]
+
+options:
+  -h, --help         show this help message and exit
+  --port PORT        http port
+  --timeout TIMEOUT  wait time for keyboard input[sec]
+```
+When timeout is specified, display the image for the specified number of seconds.   
+When timeout is not specified, the image will be displayed until the ESC key is pressed.   
+New requests are queued while the image is displayed.   
+__Close the image window with the ESC key. Do not use the close button.__   
+![opencv](https://github.com/nopnop2002/esp-idf-mqtt-camera/assets/6020549/516b2f25-d285-47d6-ae56-ee1cceed5c58)   
+This script works not only on Linux but also on Windows 10.   
+I used Python 3.9.13 for Windows.   
+![Image](https://github.com/user-attachments/assets/b1d4f037-3be3-4b02-bea7-6856aa2e1f8e)
+
+
+## Installation for ESP32
 For AiThinker ESP32-CAM, you need to use a USB-TTL converter and connect GPIO0 to GND.   
 
 |ESP-32|USB-TTL|
@@ -96,7 +118,7 @@ You can use static IP.
 ### HTTP Server Setting
 Specify the IP address and port number of the http server.   
 You can use mDNS hostnames instead of IP addresses.   
-![config-http](https://user-images.githubusercontent.com/6020549/183002951-42e79610-eccf-4c8b-a03f-b6c5a9679bc2.jpg)
+![Image](https://github.com/user-attachments/assets/1d8ddb66-9442-4dac-a214-87ea6b2c4ca6)
 
 ### Attached File Name Setting
 You can select the file name to send to the HTTP server from the following.   
@@ -123,8 +145,10 @@ Large frame sizes take longer to take a picture.
 ![config-framesize-2](https://user-images.githubusercontent.com/6020549/118947692-8d2f8e80-b992-11eb-9caa-1f6b6cb2210e.jpg)
 
 ### Select Shutter
-
-You can choose one of the following shutter methods
+ESP32 acts as a HTTP server and listens for requests from HTTP clients.   
+You can use this command as shutter.   
+`curl -X POST http://192.168.10.157:8080/post`   
+In addition to this, you can select the following triggers:   
 
 - Shutter is the Enter key on the keyboard   
 	For operation check.   
@@ -172,12 +196,6 @@ You can choose one of the following shutter methods
 	You can use these devices as shutters.   
 	![Image](https://github.com/user-attachments/assets/cc97da4e-6c06-4604-8362-f81c6fb6eb58)   
 	Click [here](https://github.com/nopnop2002/esp-idf-selfie-trigger) for details.   
-
-- Shutter is HTTP Request   
-	ESP32 acts as a HTTP server and listens for requests from HTTP clients.   
-	You can use this command as shutter.   
-	`curl "http://esp32-camera.local:8080/take/picture"`
-	![config-shutter-5](https://user-images.githubusercontent.com/6020549/193444800-ed7ac318-307d-4c12-baec-9b32b98df77c.jpg)
 
 
 ### Flash Light   
