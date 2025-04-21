@@ -147,7 +147,10 @@ Large frame sizes take longer to take a picture.
 ### Select Shutter
 ESP32 acts as a HTTP server and listens for requests from HTTP clients.   
 You can use this command as shutter.   
+`curl -X POST http://{ESP32's IP Address}:8080/post`   
+If your ESP32's IP address is `192.168.10.157`, it will look like this.   
 `curl -X POST http://192.168.10.157:8080/post`   
+
 In addition to this, you can select the following triggers:   
 
 - Shutter is the Enter key on the keyboard   
