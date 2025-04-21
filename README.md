@@ -26,7 +26,7 @@ You can use a server using flask or a simple server.
 ## flask HTTP server   
 ```
 sudo apt update
-sudo apt install python3-pip python3-setuptools python3-magic
+sudo apt install python3-pip python3-setuptools
 python3 -m pip install -U pip
 python3 -m pip install -U wheel
 python3 -m pip install -U Werkzeug
