@@ -57,6 +57,17 @@ You can see the photos.
 ![Image](https://github.com/user-attachments/assets/898c799f-4c6a-4416-9452-2d0fab5ec94a)
 ![Image](https://github.com/user-attachments/assets/fae46e75-7f57-4807-b425-cfd206162a81)
 
+- Directory to save photos   
+	This project will save photos in the following directory:
+	`esp-idf-http-camera/flask/uploaded`   
+	```
+	$ pwd
+	/home/nop/esp-idf-http-camera/flask/uploaded
+	$ ls
+	picture0_1024x768.jpg  picture2_800x600.jpg
+	picture1_1280x720.jpg
+	```
+
 - About Exif tags   
 	In this project, we will use exiftool to add Exif tags to JPG files.   
 	The name of the tag to be added is `UserComment`.   
