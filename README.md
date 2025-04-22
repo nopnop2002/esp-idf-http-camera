@@ -26,7 +26,7 @@ You can use a server using flask or a simple server.
 ## flask HTTP server   
 ```
 sudo apt update
-sudo apt install python3-pip python3-setuptools
+sudo apt install python3-pip python3-setuptools libimage-exiftool-perl jhead
 python3 -m pip install -U pip
 python3 -m pip install -U wheel
 python3 -m pip install -U Werkzeug
@@ -41,20 +41,28 @@ python3 main.py
 ```
 
 Open your browser and enter the host address in the address bar.   
-![Image](https://github.com/user-attachments/assets/ff880a80-5f97-47fd-b160-0cf781cdb73d)
+![Image](https://github.com/user-attachments/assets/01427bcf-e51d-40cd-a6cf-03fa41a2912f)
 
 When you start ESP32, a list of ESP32 will be displayed.   
-![Image](https://github.com/user-attachments/assets/ede70d8d-9012-4c61-aa82-85c690a0fe9b)
+![Image](https://github.com/user-attachments/assets/4b42727e-5afc-4d95-bbec-d57b9131ca45)
 
 Select ESP32 and then press the Take Picture button.   
 You can add Exif to JPEG.   
-![Image](https://github.com/user-attachments/assets/94faa033-bb23-4016-95d0-e47ae670f4df)
+![Image](https://github.com/user-attachments/assets/62d4a56e-226b-4131-8d96-de8185e5441c)
 
 ESP32 takes a photo and transmits it to the server.   
 You can see the photos.   
-![Image](https://github.com/user-attachments/assets/2bb21f79-68e1-42bb-bda1-311e71035d9f)
-![Image](https://github.com/user-attachments/assets/7cc8cd75-7414-4d25-900e-6635b4c48287)
-![Image](https://github.com/user-attachments/assets/5d2c99b2-beb5-4560-9e47-b01e92d5e08e)
+![Image](https://github.com/user-attachments/assets/885a06e4-50d0-42dd-a475-29ec8b24a85d)
+![Image](https://github.com/user-attachments/assets/5d7207c9-a4f0-448e-9e76-5c16dd87b8be)
+![Image](https://github.com/user-attachments/assets/898c799f-4c6a-4416-9452-2d0fab5ec94a)
+![Image](https://github.com/user-attachments/assets/fae46e75-7f57-4807-b425-cfd206162a81)
+
+- About Exif tags   
+	In this project, we will use exiftool to add Exif tags to JPG files.   
+	The name of the tag to be added is `UserComment`.   
+	You can view the Exif content with the following command:   
+	`jhead *.jpg`   
+	![Image](https://github.com/user-attachments/assets/7506b9b3-bbbf-414b-b5f3-2ee665fcf7d2)
 
 ## Simple HTTP server
 ```

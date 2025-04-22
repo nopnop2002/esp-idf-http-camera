@@ -40,7 +40,7 @@
             Take picture from selected camera
           </div>
           <div class="card-block">
-            <input class="btn btn-primary btn-sm" type="submit" value="Take Picture">
+            <input class="btn btn-primary btn-sm" type="submit" value="Take Picture" class="fas">
             <label>
               exif
               <input type="text" name="exif">
@@ -58,6 +58,7 @@
                 <tr>
                   <th> Name </th>
                   <th> Size </th>
+                  <th> Date-Time </th>
                   <th> MIME </th>
                   <th> Download </th>
                   <th> View </th>
@@ -89,6 +90,9 @@
                     </td>
                     <td>
                       {{ file.size }}
+                    </td>
+                    <td>
+                      {{ file.ctime }}
                     </td>
                     <td>
                       <span class="label label-primary">{{ file.mime }}</span>

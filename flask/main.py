@@ -4,7 +4,11 @@ import os
 import sys
 import time
 import json
-from datetime import datetime
+import subprocess
+import pathlib
+import datetime
+
+# Non standard library
 # python3 -m pip install -U pillow
 from PIL import Image
 # python3 -m pip install -U python-magic
@@ -40,6 +44,16 @@ if (os.path.exists(UPLOAD_DIR) == False):
 add_app = Blueprint("uploaded", __name__, static_url_path='/uploaded', static_folder='./uploaded')
 app.register_blueprint(add_app)
 
+# Execute external process
+def exec_subprocess(cmd: str, raise_error=True):
+	child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	stdout, stderr = child.communicate()
+	rt = child.returncode
+	if rt != 0 and raise_error:
+		raise Exception(f"command return code is not 0. got {rt}. stderr = {stderr}")
+
+	return stdout, stderr, rt
+
 @app.route("/")
 def get():
 	fileList = []
@@ -65,16 +79,20 @@ def get():
 				visible = "text/" in mime
 			logging.debug("visible={}".format(visible))
 
+			p = pathlib.Path(fullpath)
+			dt = datetime.datetime.fromtimestamp(p.stat().st_ctime)
+			ctime = dt.strftime('%Y/%m/%d %H:%M:%S') 
+
 			exif = ""
 			if (mime == "image/jpeg"):
 				image = Image.open(fullpath)
 				try:
 					exif_dict = piexif.load(image.info["exif"])
 					exif = exif_dict["Exif"][piexif.ExifIFD.UserComment].decode("utf-8")
+					exif = exif.replace('ASCII', '')
 				except:
 					pass
-				logging.debug("exif={}".format(exif))
-			
+				logging.debug("exif=[{}]".format(exif))
 
 			fileList.append({
 				"name": name,
@@ -82,7 +100,8 @@ def get():
 				"mime": mime,
 				"fullname": fullpath,
 				"visible": visible,
-				"exif": exif
+				"exif": exif,
+				"ctime": ctime,
 			})
 
 	# Handling missing nodes
@@ -165,23 +184,6 @@ def imageview():
 			contents = contents + data.rstrip() + "<br>"
 		return contents
 
-# add Exif to jpeg
-# https://zenn.dev/headwaters/articles/441d3c181987fd
-def add_jpg_metadata(path, exif):
-	logging.debug("add_jpg_metadata path=[{}] exif=[{}]".format(path, exif))
-	# Open image
-	image = Image.open(path)
-	# Add Exif data to image
-	exif_dict = {
-		"Exif": {
-			# piexif.ExifIFD.UserComment: "This is a custom comment with some details.".encode("utf-8"),
-			piexif.ExifIFD.UserComment: exif.encode("utf-8"),
-		}
-	}
-	exif_bytes = piexif.dump(exif_dict)
-	# Save image
-	image.save(path, exif=exif_bytes)
-
 @app.route('/upload_multipart', methods=['POST'])
 def upload_multipart():
 	logging.info("upload_multipart")
@@ -222,12 +224,18 @@ def upload_multipart():
 		for i in range(len(waitList)):
 			wait_addr = waitList[i][0]
 			wait_exif = waitList[i][1]
-			logging.info("wait_addr={} wait_exif={}".format(wait_addr, wait_exif))
+			logging.info("wait_addr={} wait_exif=[{}]".format(wait_addr, wait_exif))
 			if (wait_addr == request.remote_addr):
 				if (wait_exif != ""):
-					add_jpg_metadata(filepath, wait_exif)
-					del waitList[i]
-					break;
+					# Add exif to usercomment using exiftool
+					cmd = "exiftool -usercomment='{}' {}".format(wait_exif, filepath)
+					logging.info("cmd=[{}]".format(cmd))
+					stdout, stderr, rt = exec_subprocess(cmd)
+					logging.info("exec_subprocess stdout={} stderr={} rt={}".format(stdout, stderr, rt))
+					backpath = filepath + "_original"
+					os.remove(backpath)
+				del waitList[i]
+				break;
 
 	except IOError as e:
 		logging.error("Failed to write file due to IOError %s", str(e))
