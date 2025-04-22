@@ -131,6 +131,7 @@ You can select the file name to send to the HTTP server from the following.
 
 - Add FrameSize to Remote file Name   
 	When this is enabled, FrameSize is added to remote file name like this.   
+	`picture_800x600.jpg`   
 	`20210520-165740_800x600.jpg`   
 	![config-filename-3](https://user-images.githubusercontent.com/6020549/119243501-529c4080-bba2-11eb-8ba4-85cdd764b0fc.jpg)
 
