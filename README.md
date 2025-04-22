@@ -64,6 +64,28 @@ You can see the photos.
 	`jhead *.jpg`   
 	![Image](https://github.com/user-attachments/assets/7506b9b3-bbbf-414b-b5f3-2ee665fcf7d2)
 
+	You can use exiftool to modify the Exif tags.   
+	```
+	$ jhead picture2_800x600.jpg
+	File name    : picture2_800x600.jpg
+	File size    : 15020 bytes
+	File date    : 2025:04:23 03:47:27
+	Resolution   : 800 x 600
+	JPEG Quality : 62
+	Comment      : test-03
+
+	$ exiftool -usercomment=test-03-01 picture2_800x600.jpg
+	    1 image files updated
+
+	$ jhead picture2_800x600.jpg
+	File name    : picture2_800x600.jpg
+	File size    : 15022 bytes
+	File date    : 2025:04:23 04:11:26
+	Resolution   : 800 x 600
+	JPEG Quality : 62
+	Comment      : test-03-01
+	```
+
 ## Simple HTTP server
 ```
 python3 -m pip install -U wheel
