@@ -239,12 +239,14 @@ def upload_multipart():
 @app.route("/select", methods=["POST"])
 def select():
 	logging.info("select: request.form={}".format(request.form))
-	selected = request.form.get('selected')
-	if (selected is not None):
+	selected = request.form.getlist('selected')
+	logging.info("selected={}".format(selected))
+	logging.info("len(selected)={}".format(len(selected)))
+	for ip in selected:
 		exif = request.form.get('exif')
 		logging.info("select: exif=[{}]".format(exif))
-		logging.info("select: selected=[{}]".format(selected))
-		url = "http://{}:8080/post".format(selected)
+		logging.info("select: ip=[{}]".format(ip))
+		url = "http://{}:8080/post".format(ip)
 		logging.info("select: url={}".format(url))
 		Uresponse = requests.post(url)
 		logging.info("select: Uresponse={}".format(Uresponse))
@@ -252,7 +254,7 @@ def select():
 		# Add to waiting list for upload for metadata
 		utime = time.time()
 		wait = []
-		wait.append(selected) #0
+		wait.append(ip) #0
 		wait.append(exif) #1
 		wait.append(utime) #2
 		waitList.append(wait)
