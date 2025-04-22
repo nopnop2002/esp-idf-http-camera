@@ -65,6 +65,7 @@ You can see the photos.
 	![Image](https://github.com/user-attachments/assets/7506b9b3-bbbf-414b-b5f3-2ee665fcf7d2)
 
 	You can use exiftool to modify the Exif tags.   
+	Exiftool will save the file with the original Exif tag changes under a different name.   
 	```
 	$ jhead picture2_800x600.jpg
 	File name    : picture2_800x600.jpg
@@ -84,6 +85,9 @@ You can see the photos.
 	Resolution   : 800 x 600
 	JPEG Quality : 62
 	Comment      : test-03-01
+
+	$ ls picture2_800x600*
+	picture2_800x600.jpg  picture2_800x600.jpg_original
 	```
 
 	jhead treats UserComment tags the same as Comment tags.   
