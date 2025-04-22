@@ -86,6 +86,11 @@ You can see the photos.
 	Comment      : test-03-01
 	```
 
+	jhead treats UserComment tags the same as Comment tags.   
+	exiftool distinguishes between UserComment and Comment tags.   
+	An explanation of the difference between UserComment tags and Comment tags can be found [here](https://exiftool.org/forum/index.php?topic=12466.0).   
+
+
 ## Simple HTTP server
 ```
 python3 -m pip install -U wheel
