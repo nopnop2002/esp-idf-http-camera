@@ -58,7 +58,7 @@ You can see the photos.
 ![Image](https://github.com/user-attachments/assets/fae46e75-7f57-4807-b425-cfd206162a81)
 
 - Directory to save photos   
-	This project will save photos in the following directory:
+	This project will save photos in the following directory:   
 	`esp-idf-http-camera/flask/uploaded`   
 	```
 	$ pwd
