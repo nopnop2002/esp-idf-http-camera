@@ -1,0 +1,7 @@
+build
+main/build
+*.spdx
+sdkconfig.old
+managed_components
+.cid
+.cache

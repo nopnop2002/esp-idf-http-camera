@@ -133,6 +133,8 @@ menu "Application Configuration"
 			bool "TTGO T-Journal ESP32 Camera"
 		config BOARD_ESPS3_CAM_UICPAL
 			bool "UICPAL ESPS3 CAM RE:1.0"
+		config BOARD_ESPS3_XIAO
+			bool "SEEED studio ESPS3 XIAO CAM"
 	endchoice
 
 	choice FRAMESIZE
