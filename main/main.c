@@ -392,13 +392,9 @@ void app_main(void)
 #if CONFIG_REMOTE_IS_VARIABLE_NAME
 	// obtain time over NTP
 	ESP_LOGI(TAG, "Connecting to WiFi and getting time over NTP.");
-	ret = obtain_time();
-	if(ret != ESP_OK) {
-		ESP_LOGE(TAG, "Fail to getting time over NTP.");
-		return;
-	}
+	ESP_ERROR_CHECK(obtain_time());
 
-	// update 'now' variable with current time
+	// show current date & time
 	time_t now;
 	struct tm timeinfo;
 	char strftime_buf[64];
