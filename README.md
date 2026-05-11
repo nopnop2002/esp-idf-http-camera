@@ -23,7 +23,7 @@ ESP-IDF V4.4 release branch reached EOL in July 2024.
 # Start HTTP Server
 You can use a server using flask or a simple server.   
 
-## flask HTTP server   
+## Flask HTTP server   
 ```
 sudo apt update
 sudo apt install python3-pip python3-setuptools libimage-exiftool-perl jhead
