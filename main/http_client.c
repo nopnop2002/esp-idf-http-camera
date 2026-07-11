@@ -151,6 +151,8 @@ void http_client(void *pvParameters)
 			cJSON_AddStringToObject(root, "board", "TTGO T-Journal ESP32 Camera");
 #elif CONFIG_BOARD_ESPS3_CAM_UICPAL
 			cJSON_AddStringToObject(root, "board", "UICPAL ESPS3 CAM RE:1.0");
+#elif CONFIG_BOARD_ESPS3_XIAO
+			cJSON_AddStringToObject(root, "board", "ESPS3 XIAO");
 #endif
 
 #if CONFIG_FRAMESIZE_VGA
