@@ -111,6 +111,7 @@ You can see the photos.
 python3 -m pip install -U wheel
 python3 -m pip install opencv-python
 git clone https://github.com/nopnop2002/esp-idf-http-camera
+cd esp-idf-http-camera
 python3 ./http_server.py --help
 usage: http_server.py [-h] [--port PORT] [--timeout TIMEOUT]
 
